@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "updated_at": "2026-04-19",
+  "apps": [
+    {
+      "id": "cloudflare-tunnel",
+      "name": "Cloudflare Tunnel",
+      "tagline": "Expose local services to the internet securely via Cloudflare",
+      "description": "Cloudflare Tunnel creates a secure outbound connection from your server to Cloudflare's network — no inbound firewall rules or public IPs needed. Get your tunnel token from the Cloudflare Zero Trust dashboard.",
+      "icon": "🌐",
+      "category": "Networking",
+      "tags": ["cloudflare", "tunnel", "proxy", "networking"],
+      "compose": "services:\n  cloudflared:\n    image: cloudflare/cloudflared:latest\n    container_name: cloudflared\n    restart: unless-stopped\n    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}\n",
+      "env": [
+        {
+          "key": "TUNNEL_TOKEN",
+          "label": "Tunnel Token",
+          "default": "",
+          "description": "Found in Cloudflare Zero Trust dashboard → Networks → Tunnels → your tunnel → Configure → Install connector."
+        }
+      ]
+    }
+  ]
+}
