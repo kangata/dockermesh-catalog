@@ -81,5 +81,24 @@
         }
       ]
     }
+    ,
+    {
+      "id": "uptime-kuma",
+      "name": "Uptime Kuma",
+      "tagline": "Self-hosted uptime monitoring tool with a fancy UI",
+      "description": "Uptime Kuma is an easy-to-use self-hosted monitoring tool for tracking uptime of websites, TCP ports, DNS, and more with notifications support.",
+      "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/uptime-kuma.png",
+      "category": "Monitoring",
+      "tags": ["monitoring", "uptime", "alerting"],
+      "compose": "services:\n  uptime-kuma:\n    image: louislam/uptime-kuma:2\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:3001\"\n    volumes:\n      - uptime_kuma_data:/app/data\n\nvolumes:\n  uptime_kuma_data:\n",
+      "env": [
+        {
+          "key": "PORT",
+          "label": "Port",
+          "default": "3001",
+          "description": "Host port to expose the Uptime Kuma web UI on."
+        }
+      ]
+    }
   ]
 }
