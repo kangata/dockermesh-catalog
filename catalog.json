@@ -10,13 +10,56 @@
       "icon": "🌐",
       "category": "Networking",
       "tags": ["cloudflare", "tunnel", "proxy", "networking"],
-      "compose": "services:\n  cloudflared:\n    image: cloudflare/cloudflared:latest\n    container_name: cloudflared\n    restart: unless-stopped\n    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}\n",
+      "compose": "services:\n  cloudflared:\n    image: cloudflare/cloudflared:latest\n    restart: unless-stopped\n    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}\n",
       "env": [
         {
           "key": "TUNNEL_TOKEN",
           "label": "Tunnel Token",
           "default": "",
           "description": "Found in Cloudflare Zero Trust dashboard → Networks → Tunnels → your tunnel → Configure → Install connector."
+        }
+      ]
+    }
+    ,
+    {
+      "id": "wg-easy",
+      "name": "WG-Easy",
+      "tagline": "WireGuard VPN with a simple web UI",
+      "description": "WG-Easy is the easiest way to run WireGuard VPN + a web UI for managing peers. Requires your server's public IP or hostname and a password hash.\n\nGenerate password hash on your server:\n  docker run --rm ghcr.io/wg-easy/wg-easy:15 wgpw 'your-password'",
+      "icon": "🔒",
+      "category": "Networking",
+      "tags": ["vpn", "wireguard", "networking", "security"],
+      "compose": "services:\n  wg-easy:\n    image: ghcr.io/wg-easy/wg-easy:15\n    restart: unless-stopped\n    environment:\n      - WG_HOST=${WG_HOST}\n      - PASSWORD_HASH=${PASSWORD_HASH}\n      - WG_PORT=${WG_PORT}\n      - WG_DEFAULT_DNS=${WG_DEFAULT_DNS}\n    ports:\n      - \"${WG_PORT}:${WG_PORT}/udp\"\n      - \"${WEBUI_PORT}:51821/tcp\"\n    volumes:\n      - wg_data:/etc/wireguard\n    cap_add:\n      - NET_ADMIN\n      - SYS_MODULE\n    sysctls:\n      - net.ipv4.conf.all.src_valid_mark=1\n      - net.ipv4.ip_forward=1\n\nvolumes:\n  wg_data:\n",
+      "env": [
+        {
+          "key": "WG_HOST",
+          "label": "Public Host",
+          "default": "",
+          "description": "Public IP address or hostname of your server. Clients use this to connect."
+        },
+        {
+          "key": "PASSWORD_HASH",
+          "label": "Password Hash",
+          "default": "",
+          "description": "Bcrypt hash of the web UI admin password. Generate with: docker run --rm ghcr.io/wg-easy/wg-easy:15 wgpw 'your-password'"
+        },
+        {
+          "key": "WG_PORT",
+          "label": "WireGuard Port (UDP)",
+          "default": "51820",
+          "description": "UDP port WireGuard listens on. Must be open in your firewall."
+        },
+        {
+          "key": "WEBUI_PORT",
+          "label": "Web UI Port",
+          "default": "51821",
+          "description": "Host port to expose the WG-Easy web UI on."
+        },
+        {
+          "key": "WG_DEFAULT_DNS",
+          "label": "Default DNS",
+          "default": "1.1.1.1",
+          "description": "DNS server pushed to VPN clients."
         }
       ]
     }
