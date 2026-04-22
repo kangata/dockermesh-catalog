@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "updated_at": "2026-04-19",
+    "updated_at": "2026-04-23",
     "apps": [
         {
             "id": "cloudflare-tunnel",
@@ -55,50 +55,66 @@
                     "description": "DNS server pushed to VPN clients."
                 }
             ]
-        }
-      ,
-    {
-      "id": "beszel",
-      "name": "Beszel",
-      "tagline": "Lightweight server and Docker monitoring hub",
-      "description": "Beszel is a lightweight server monitoring platform with a web UI for tracking CPU, memory, disk, and Docker container stats across multiple systems.",
-      "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/beszel.png",
-      "category": "Monitoring",
-      "tags": ["monitoring", "dashboard", "docker", "metrics"],
-      "compose": "services:\n  beszel:\n    image: henrygd/beszel:latest\n    restart: unless-stopped\n    environment:\n      - APP_URL=${APP_URL}\n    ports:\n      - \"${PORT}:8090\"\n    volumes:\n      - beszel_data:/beszel_data\n\nvolumes:\n  beszel_data:\n",
-      "env": [
-        {
-          "key": "APP_URL",
-          "label": "App URL",
-          "default": "http://localhost:8090",
-          "description": "The URL you will use to access Beszel (e.g. http://your-server-ip:8090 or your domain)."
         },
         {
-          "key": "PORT",
-          "label": "Port",
-          "default": "8090",
-          "description": "Host port to expose the Beszel web UI on."
-        }
-      ]
-    }
-    ,
-    {
-      "id": "uptime-kuma",
-      "name": "Uptime Kuma",
-      "tagline": "Self-hosted uptime monitoring tool with a fancy UI",
-      "description": "Uptime Kuma is an easy-to-use self-hosted monitoring tool for tracking uptime of websites, TCP ports, DNS, and more with notifications support.",
-      "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/uptime-kuma.png",
-      "category": "Monitoring",
-      "tags": ["monitoring", "uptime", "alerting"],
-      "compose": "services:\n  uptime-kuma:\n    image: louislam/uptime-kuma:2\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:3001\"\n    volumes:\n      - uptime_kuma_data:/app/data\n\nvolumes:\n  uptime_kuma_data:\n",
-      "env": [
+            "id": "beszel",
+            "name": "Beszel",
+            "tagline": "Lightweight server and Docker monitoring hub",
+            "description": "Beszel is a lightweight server monitoring platform with a web UI for tracking CPU, memory, disk, and Docker container stats across multiple systems.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/beszel.png",
+            "category": "Monitoring",
+            "tags": ["monitoring", "dashboard", "docker", "metrics"],
+            "compose": "services:\n  beszel:\n    image: henrygd/beszel:latest\n    restart: unless-stopped\n    environment:\n      - APP_URL=${APP_URL}\n    ports:\n      - \"${PORT}:8090\"\n    volumes:\n      - beszel_data:/beszel_data\n\nvolumes:\n  beszel_data:\n",
+            "env": [
+                {
+                    "key": "APP_URL",
+                    "label": "App URL",
+                    "default": "http://localhost:8090",
+                    "description": "The URL you will use to access Beszel (e.g. http://your-server-ip:8090 or your domain)."
+                },
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8090",
+                    "description": "Host port to expose the Beszel web UI on."
+                }
+            ]
+        },
         {
-          "key": "PORT",
-          "label": "Port",
-          "default": "3001",
-          "description": "Host port to expose the Uptime Kuma web UI on."
+            "id": "myspeed",
+            "name": "MySpeed",
+            "tagline": "Self-hosted internet speed test tracker",
+            "description": "MySpeed saves your internet speed test results over time so you can track performance trends, detect outages, and monitor your ISP's reliability — all from a clean self-hosted dashboard.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/myspeed.png",
+            "category": "Monitoring",
+            "tags": ["speedtest", "monitoring", "network", "dashboard"],
+            "compose": "services:\n  myspeed:\n    image: germannewsmaker/myspeed:latest\n    container_name: myspeed\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:5216\"\n    volumes:\n      - myspeed_data:/myspeed/data\n\nvolumes:\n  myspeed_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "5216",
+                    "description": "Host port to expose the MySpeed web UI on."
+                }
+            ]
+        },
+        {
+            "id": "uptime-kuma",
+            "name": "Uptime Kuma",
+            "tagline": "Self-hosted uptime monitoring tool with a fancy UI",
+            "description": "Uptime Kuma is an easy-to-use self-hosted monitoring tool for tracking uptime of websites, TCP ports, DNS, and more with notifications support.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/uptime-kuma.png",
+            "category": "Monitoring",
+            "tags": ["monitoring", "uptime", "alerting"],
+            "compose": "services:\n  uptime-kuma:\n    image: louislam/uptime-kuma:2\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:3001\"\n    volumes:\n      - uptime_kuma_data:/app/data\n\nvolumes:\n  uptime_kuma_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "3001",
+                    "description": "Host port to expose the Uptime Kuma web UI on."
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }
