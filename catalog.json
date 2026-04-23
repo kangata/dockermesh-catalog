@@ -99,6 +99,30 @@
             ]
         },
         {
+            "id": "scrutiny",
+            "name": "Scrutiny",
+            "tagline": "Hard drive S.M.A.R.T. health monitoring with historical trends",
+            "description": "Scrutiny monitors the S.M.A.R.T. health of all your hard drives and SSDs, surfacing failure predictions and historical trends in a clean web dashboard. The omnibus image bundles the web UI and InfluxDB time-series store in a single container.\n\nAfter installing, add your disk devices to the compose file — by default /dev/sda is included. Add more entries (e.g. /dev/sdb, /dev/nvme0n1) as needed.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/scrutiny.png",
+            "category": "Monitoring",
+            "tags": ["monitoring", "smart", "hard-drive", "health", "storage"],
+            "compose": "services:\n  scrutiny:\n    image: ghcr.io/analogj/scrutiny:master-omnibus\n    restart: unless-stopped\n    cap_add:\n      - SYS_RAWIO\n    ports:\n      - \"${PORT}:8080\"\n      - \"${INFLUXDB_PORT}:8086\"\n    volumes:\n      - /run/udev:/run/udev:ro\n      - scrutiny_config:/opt/scrutiny/config\n      - scrutiny_influxdb:/opt/scrutiny/influxdb\n    devices:\n      - /dev/sda\n      # Add more drives: /dev/sdb, /dev/nvme0n1, etc.\n\nvolumes:\n  scrutiny_config:\n  scrutiny_influxdb:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Web UI Port",
+                    "default": "8080",
+                    "description": "Host port to expose the Scrutiny web UI on."
+                },
+                {
+                    "key": "INFLUXDB_PORT",
+                    "label": "InfluxDB Port",
+                    "default": "8086",
+                    "description": "Host port for the bundled InfluxDB instance. Only needed if you want direct InfluxDB access; otherwise leave at the default."
+                }
+            ]
+        },
+        {
             "id": "uptime-kuma",
             "name": "Uptime Kuma",
             "tagline": "Self-hosted uptime monitoring tool with a fancy UI",
