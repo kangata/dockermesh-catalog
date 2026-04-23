@@ -123,6 +123,36 @@
             ]
         },
         {
+            "id": "umami",
+            "name": "Umami",
+            "tagline": "Privacy-first, self-hosted web analytics",
+            "description": "Umami is a simple, fast, privacy-focused alternative to Google Analytics. No cookies, no personal data, GDPR compliant by design. Tracks page views, visitors, referrers, devices, and custom events.\n\nAfter installing, open the web UI and log in with the default credentials (admin / umami) — change the password immediately. Then create a website to get your Website ID and tracking script.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/umami.png",
+            "category": "Analytics",
+            "tags": ["analytics", "privacy", "tracking", "dashboard"],
+            "compose": "services:\n  umami:\n    image: ghcr.io/umami-software/umami:postgresql-latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:3000\"\n    environment:\n      - DATABASE_URL=postgresql://umami:${DB_PASSWORD}@db:5432/umami\n      - DATABASE_TYPE=postgresql\n      - APP_SECRET=${APP_SECRET}\n    depends_on:\n      db:\n        condition: service_healthy\n\n  db:\n    image: postgres:15-alpine\n    restart: unless-stopped\n    environment:\n      - POSTGRES_DB=umami\n      - POSTGRES_USER=umami\n      - POSTGRES_PASSWORD=${DB_PASSWORD}\n    volumes:\n      - umami_db:/var/lib/postgresql/data\n    healthcheck:\n      test: [\"CMD-SHELL\", \"pg_isready -U umami\"]\n      interval: 5s\n      timeout: 5s\n      retries: 5\n\nvolumes:\n  umami_db:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "3000",
+                    "description": "Host port to expose the Umami web UI on."
+                },
+                {
+                    "key": "DB_PASSWORD",
+                    "label": "Database Password",
+                    "default": "",
+                    "description": "Password for the internal PostgreSQL database. Use a strong random string."
+                },
+                {
+                    "key": "APP_SECRET",
+                    "label": "App Secret",
+                    "default": "",
+                    "description": "Random secret used to sign session tokens. Use a long random string."
+                }
+            ]
+        },
+        {
             "id": "uptime-kuma",
             "name": "Uptime Kuma",
             "tagline": "Self-hosted uptime monitoring tool with a fancy UI",
