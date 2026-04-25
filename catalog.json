@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "updated_at": "2026-04-23",
+    "updated_at": "2026-04-25",
     "apps": [
         {
             "id": "cloudflare-tunnel",
@@ -149,6 +149,48 @@
                     "label": "App Secret",
                     "default": "",
                     "description": "Random secret used to sign session tokens. Use a long random string."
+                }
+            ]
+        },
+        {
+            "id": "qwenpaw",
+            "name": "QwenPaw",
+            "tagline": "Self-hosted personal AI assistant with multi-agent, skills, and memory",
+            "description": "QwenPaw is a self-hosted personal AI assistant built on Qwen models. Run it on your own server for full data control — memory, skills, and configuration never leave your machine.\n\nFeatures multi-agent collaboration, extensible skills (scheduling, document processing, news digests), integrations with Telegram, Discord, WeChat, DingTalk, and Feishu, and persistent memory that evolves with use.\n\nAfter installing, open the web console and configure your model provider API key in Settings → Model Provider. Enable authentication (recommended) via the environment variables below.",
+            "icon": "https://github.com/agentscope-ai.png",
+            "category": "AI",
+            "tags": ["ai", "assistant", "agent", "llm", "qwen"],
+            "compose": "services:\n  qwenpaw:\n    image: agentscope/qwenpaw:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:8088\"\n    environment:\n      - QWENPAW_AUTH_ENABLED=${AUTH_ENABLED}\n      - QWENPAW_AUTH_USERNAME=${AUTH_USERNAME}\n      - QWENPAW_AUTH_PASSWORD=${AUTH_PASSWORD}\n      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}\n    volumes:\n      - qwenpaw_data:/app/working\n      - qwenpaw_secrets:/app/working.secret\n      - qwenpaw_backups:/app/working.backups\n\nvolumes:\n  qwenpaw_data:\n  qwenpaw_secrets:\n  qwenpaw_backups:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8088",
+                    "description": "Host port to expose the QwenPaw web console on."
+                },
+                {
+                    "key": "DASHSCOPE_API_KEY",
+                    "label": "DashScope API Key",
+                    "default": "",
+                    "description": "Alibaba Cloud DashScope API key for Qwen model access. Get one at dashscope.aliyun.com. You can also configure other model providers from the web console after install."
+                },
+                {
+                    "key": "AUTH_ENABLED",
+                    "label": "Enable Authentication",
+                    "default": "true",
+                    "description": "Set to 'true' to require login to access the web console. Recommended when exposing to a network."
+                },
+                {
+                    "key": "AUTH_USERNAME",
+                    "label": "Admin Username",
+                    "default": "admin",
+                    "description": "Username for the web console login. Only used when authentication is enabled."
+                },
+                {
+                    "key": "AUTH_PASSWORD",
+                    "label": "Admin Password",
+                    "default": "",
+                    "description": "Password for the web console login. Use a strong password. Only used when authentication is enabled."
                 }
             ]
         },
