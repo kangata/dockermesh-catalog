@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "updated_at": "2026-04-25",
+    "updated_at": "2026-04-28",
     "apps": [
         {
             "id": "cloudflare-tunnel",
@@ -191,6 +191,36 @@
                     "label": "Admin Password",
                     "default": "",
                     "description": "Password for the web console login. Use a strong password. Only used when authentication is enabled."
+                }
+            ]
+        },
+        {
+            "id": "9router",
+            "name": "9Router",
+            "tagline": "Smart AI model router across 40+ providers with token compression and fallback",
+            "description": "9Router is an open-source AI API gateway that intelligently routes requests across 40+ providers (Claude, OpenAI, Gemini, Cursor, and more) and 100+ models. Features automatic token compression to cut costs, multi-account round-robin load balancing, real-time quota tracking, and seamless format translation between different AI platforms — all behind a single OpenAI-compatible endpoint.\n\nAfter installing, open the web UI and log in with the initial password. Then configure your provider API keys in the dashboard and point your apps at 9Router's endpoint.",
+            "icon": "https://github.com/decolua.png",
+            "category": "AI",
+            "tags": ["ai", "router", "llm", "proxy", "openai", "gateway"],
+            "compose": "services:\n  9router:\n    image: antiantiops/9router:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:20128\"\n    environment:\n      - DATA_DIR=/app/data\n      - JWT_SECRET=${JWT_SECRET}\n      - INITIAL_PASSWORD=${INITIAL_PASSWORD}\n    volumes:\n      - 9router_data:/app/data\n\nvolumes:\n  9router_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "20128",
+                    "description": "Host port to expose the 9Router web UI and API endpoint on."
+                },
+                {
+                    "key": "JWT_SECRET",
+                    "label": "JWT Secret",
+                    "default": "",
+                    "description": "Secret key used to sign dashboard session tokens. Use a long random string — required for security."
+                },
+                {
+                    "key": "INITIAL_PASSWORD",
+                    "label": "Initial Password",
+                    "default": "",
+                    "description": "Password for the first login to the web dashboard. Change it immediately after the first login."
                 }
             ]
         },
