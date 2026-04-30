@@ -229,7 +229,7 @@
             "name": "Hermes Agent",
             "tagline": "Self-improving AI agent with memory, skills, and multi-platform messaging",
             "description": "Hermes Agent is a self-hosted personal AI assistant by Nous Research. It features a closed learning loop — it creates skills from experience, builds persistent memory across sessions, and runs scheduled automations. Connect any model (OpenAI, OpenRouter, NVIDIA NIM, and more) and talk to it via Telegram, Discord, Slack, WhatsApp, Signal, or CLI.\n\nAfter installing, open the dashboard and add your model provider API key in Settings. The gateway uses host networking for full connectivity; the dashboard is exposed on the port you choose below.",
-            "icon": "https://github.com/NousResearch.png",
+            "icon": "https://hermes-agent.nousresearch.com/docs/img/logo.png",
             "category": "AI",
             "tags": ["ai", "agent", "llm", "assistant", "memory", "telegram", "discord"],
             "compose": "services:\n  gateway:\n    image: nousresearch/hermes-agent:latest\n    container_name: hermes-gateway\n    restart: unless-stopped\n    network_mode: host\n    volumes:\n      - hermes_data:/opt/data\n    command: [\"gateway\", \"run\"]\n\n  dashboard:\n    image: nousresearch/hermes-agent:latest\n    container_name: hermes-dashboard\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:9119\"\n    depends_on:\n      - gateway\n    volumes:\n      - hermes_data:/opt/data\n    command: [\"dashboard\", \"--host\", \"0.0.0.0\", \"--no-open\"]\n\nvolumes:\n  hermes_data:\n",
