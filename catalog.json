@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "updated_at": "2026-04-28",
+    "updated_at": "2026-04-30",
     "apps": [
         {
             "id": "cloudflare-tunnel",
@@ -199,7 +199,7 @@
             "name": "9Router",
             "tagline": "Smart AI model router across 40+ providers with token compression and fallback",
             "description": "9Router is an open-source AI API gateway that intelligently routes requests across 40+ providers (Claude, OpenAI, Gemini, Cursor, and more) and 100+ models. Features automatic token compression to cut costs, multi-account round-robin load balancing, real-time quota tracking, and seamless format translation between different AI platforms — all behind a single OpenAI-compatible endpoint.\n\nAfter installing, open the web UI and log in with the initial password. Then configure your provider API keys in the dashboard and point your apps at 9Router's endpoint.",
-            "icon": "https://github.com/decolua.png",
+            "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJz48cmVjdCB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgcng9JzIwJyBmaWxsPScjRTY4QTZFJy8+PHRleHQgeD0nNTAnIHk9JzcwJyBmb250LXNpemU9JzYwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSd3aGl0ZScgZm9udC13ZWlnaHQ9J2JvbGQnPjk8L3RleHQ+PC9zdmc+",
             "category": "AI",
             "tags": ["ai", "router", "llm", "proxy", "openai", "gateway"],
             "compose": "services:\n  9router:\n    image: antiantiops/9router:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:20128\"\n    environment:\n      - DATA_DIR=/app/data\n      - JWT_SECRET=${JWT_SECRET}\n      - INITIAL_PASSWORD=${INITIAL_PASSWORD}\n    volumes:\n      - 9router_data:/app/data\n\nvolumes:\n  9router_data:\n",
@@ -221,6 +221,24 @@
                     "label": "Initial Password",
                     "default": "",
                     "description": "Password for the first login to the web dashboard. Change it immediately after the first login."
+                }
+            ]
+        },
+        {
+            "id": "hermes-agent",
+            "name": "Hermes Agent",
+            "tagline": "Self-improving AI agent with memory, skills, and multi-platform messaging",
+            "description": "Hermes Agent is a self-hosted personal AI assistant by Nous Research. It features a closed learning loop — it creates skills from experience, builds persistent memory across sessions, and runs scheduled automations. Connect any model (OpenAI, OpenRouter, NVIDIA NIM, and more) and talk to it via Telegram, Discord, Slack, WhatsApp, Signal, or CLI.\n\nAfter installing, open the dashboard and add your model provider API key in Settings. The gateway uses host networking for full connectivity; the dashboard is exposed on the port you choose below.",
+            "icon": "https://github.com/NousResearch.png",
+            "category": "AI",
+            "tags": ["ai", "agent", "llm", "assistant", "memory", "telegram", "discord"],
+            "compose": "services:\n  gateway:\n    image: nousresearch/hermes-agent:latest\n    container_name: hermes-gateway\n    restart: unless-stopped\n    network_mode: host\n    volumes:\n      - hermes_data:/opt/data\n    command: [\"gateway\", \"run\"]\n\n  dashboard:\n    image: nousresearch/hermes-agent:latest\n    container_name: hermes-dashboard\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:9119\"\n    depends_on:\n      - gateway\n    volumes:\n      - hermes_data:/opt/data\n    command: [\"dashboard\", \"--host\", \"0.0.0.0\", \"--no-open\"]\n\nvolumes:\n  hermes_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Dashboard Port",
+                    "default": "9119",
+                    "description": "Host port to expose the Hermes dashboard on. Open this port in your firewall."
                 }
             ]
         },
