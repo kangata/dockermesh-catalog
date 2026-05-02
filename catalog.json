@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "updated_at": "2026-04-30",
+    "updated_at": "2026-05-02",
     "apps": [
         {
             "id": "cloudflare-tunnel",
@@ -239,6 +239,42 @@
                     "label": "Dashboard Port",
                     "default": "9119",
                     "description": "Host port to expose the Hermes dashboard on. Open this port in your firewall."
+                }
+            ]
+        },
+        {
+            "id": "open-webui",
+            "name": "Open WebUI",
+            "tagline": "Self-hosted AI chat interface for Ollama and OpenAI-compatible APIs",
+            "description": "Open WebUI is a feature-rich, self-hosted web interface for interacting with large language models. Works out of the box with Ollama and supports any OpenAI-compatible API.\n\nFeatures include multi-model chat, RAG document Q&A, image generation, voice input, user management, and full conversation history — all in a polished ChatGPT-style UI.\n\nTo connect a local Ollama instance set the Ollama URL below. To use OpenAI or another provider, leave Ollama URL blank and provide your API key.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/open-webui.png",
+            "category": "AI",
+            "tags": ["ai", "chat", "ollama", "llm", "interface", "openai"],
+            "compose": "services:\n  open-webui:\n    image: ghcr.io/open-webui/open-webui:main\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:8080\"\n    environment:\n      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}\n      - OPENAI_API_KEY=${OPENAI_API_KEY}\n      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}\n    volumes:\n      - open_webui_data:/app/backend/data\n\nvolumes:\n  open_webui_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8080",
+                    "description": "Host port to expose the Open WebUI on."
+                },
+                {
+                    "key": "OLLAMA_BASE_URL",
+                    "label": "Ollama URL",
+                    "default": "http://host.docker.internal:11434",
+                    "description": "URL of your Ollama instance. Use http://host.docker.internal:11434 to reach Ollama running on the host machine. Leave blank if using an OpenAI-compatible API only."
+                },
+                {
+                    "key": "OPENAI_API_KEY",
+                    "label": "OpenAI API Key",
+                    "default": "",
+                    "description": "Optional. API key for OpenAI or any OpenAI-compatible provider. Leave blank if using Ollama only."
+                },
+                {
+                    "key": "WEBUI_SECRET_KEY",
+                    "label": "Secret Key",
+                    "default": "",
+                    "description": "Secret key used to sign session tokens. Use a long random string — required for production use."
                 }
             ]
         },
