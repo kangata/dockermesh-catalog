@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "updated_at": "2026-05-09",
+    "updated_at": "2026-05-19",
     "apps": [
         {
             "id": "cloudflare-tunnel",
@@ -9,7 +9,12 @@
             "description": "Cloudflare Tunnel creates a secure outbound connection from your server to Cloudflare's network — no inbound firewall rules or public IPs needed. Get your tunnel token from the Cloudflare Zero Trust dashboard.",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/cloudflare.png",
             "category": "Networking",
-            "tags": ["cloudflare", "tunnel", "proxy", "networking"],
+            "tags": [
+                "cloudflare",
+                "tunnel",
+                "proxy",
+                "networking"
+            ],
             "compose": "services:\n  cloudflared:\n    image: cloudflare/cloudflared:latest\n    restart: unless-stopped\n    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}\n",
             "env": [
                 {
@@ -27,7 +32,12 @@
             "description": "WG-Easy is the easiest way to run WireGuard VPN + a web UI for managing peers. Requires your server's public IP or hostname and a password hash.\n\nGenerate password hash on your server:\n  docker run --rm ghcr.io/wg-easy/wg-easy:15 wgpw 'your-password'",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/wireguard.png",
             "category": "Networking",
-            "tags": ["vpn", "wireguard", "networking", "security"],
+            "tags": [
+                "vpn",
+                "wireguard",
+                "networking",
+                "security"
+            ],
             "compose": "services:\n  wg-easy:\n    image: ghcr.io/wg-easy/wg-easy:15\n    restart: unless-stopped\n    environment:\n      - WG_HOST=${WG_HOST}\n      - WG_PORT=${WG_PORT}\n      - WG_DEFAULT_DNS=${WG_DEFAULT_DNS}\n    ports:\n      - \"${WG_PORT}:${WG_PORT}/udp\"\n      - \"${WEBUI_PORT}:51821/tcp\"\n    volumes:\n      - wg_data:/etc/wireguard\n    cap_add:\n      - NET_ADMIN\n      - SYS_MODULE\n    sysctls:\n      - net.ipv4.conf.all.src_valid_mark=1\n      - net.ipv4.ip_forward=1\n\nvolumes:\n  wg_data:\n",
             "env": [
                 {
@@ -63,7 +73,12 @@
             "description": "Beszel is a lightweight server monitoring platform with a web UI for tracking CPU, memory, disk, and Docker container stats across multiple systems.",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/beszel.png",
             "category": "Monitoring",
-            "tags": ["monitoring", "dashboard", "docker", "metrics"],
+            "tags": [
+                "monitoring",
+                "dashboard",
+                "docker",
+                "metrics"
+            ],
             "compose": "services:\n  beszel:\n    image: henrygd/beszel:latest\n    restart: unless-stopped\n    environment:\n      - APP_URL=${APP_URL}\n    ports:\n      - \"${PORT}:8090\"\n    volumes:\n      - beszel_data:/beszel_data\n\nvolumes:\n  beszel_data:\n",
             "env": [
                 {
@@ -87,7 +102,12 @@
             "description": "MySpeed saves your internet speed test results over time so you can track performance trends, detect outages, and monitor your ISP's reliability — all from a clean self-hosted dashboard.",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/myspeed.png",
             "category": "Monitoring",
-            "tags": ["speedtest", "monitoring", "network", "dashboard"],
+            "tags": [
+                "speedtest",
+                "monitoring",
+                "network",
+                "dashboard"
+            ],
             "compose": "services:\n  myspeed:\n    image: germannewsmaker/myspeed:latest\n    container_name: myspeed\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:5216\"\n    volumes:\n      - myspeed_data:/myspeed/data\n\nvolumes:\n  myspeed_data:\n",
             "env": [
                 {
@@ -105,7 +125,13 @@
             "description": "Scrutiny monitors the S.M.A.R.T. health of all your hard drives and SSDs, surfacing failure predictions and historical trends in a clean web dashboard. The omnibus image bundles the web UI and InfluxDB time-series store in a single container.\n\nAfter installing, add your disk devices to the compose file — by default /dev/sda is included. Add more entries (e.g. /dev/sdb, /dev/nvme0n1) as needed.",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/scrutiny.png",
             "category": "Monitoring",
-            "tags": ["monitoring", "smart", "hard-drive", "health", "storage"],
+            "tags": [
+                "monitoring",
+                "smart",
+                "hard-drive",
+                "health",
+                "storage"
+            ],
             "compose": "services:\n  scrutiny:\n    image: ghcr.io/analogj/scrutiny:master-omnibus\n    restart: unless-stopped\n    cap_add:\n      - SYS_RAWIO\n    ports:\n      - \"${PORT}:8080\"\n      - \"${INFLUXDB_PORT}:8086\"\n    volumes:\n      - /run/udev:/run/udev:ro\n      - scrutiny_config:/opt/scrutiny/config\n      - scrutiny_influxdb:/opt/scrutiny/influxdb\n    devices:\n      - /dev/sda\n      # Add more drives: /dev/sdb, /dev/nvme0n1, etc.\n\nvolumes:\n  scrutiny_config:\n  scrutiny_influxdb:\n",
             "env": [
                 {
@@ -129,7 +155,12 @@
             "description": "Umami is a simple, fast, privacy-focused alternative to Google Analytics. No cookies, no personal data, GDPR compliant by design. Tracks page views, visitors, referrers, devices, and custom events.\n\nAfter installing, open the web UI and log in with the default credentials (admin / umami) — change the password immediately. Then create a website to get your Website ID and tracking script.",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/umami.png",
             "category": "Analytics",
-            "tags": ["analytics", "privacy", "tracking", "dashboard"],
+            "tags": [
+                "analytics",
+                "privacy",
+                "tracking",
+                "dashboard"
+            ],
             "compose": "services:\n  umami:\n    image: ghcr.io/umami-software/umami:postgresql-latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:3000\"\n    environment:\n      - DATABASE_URL=postgresql://umami:${DB_PASSWORD}@db:5432/umami\n      - DATABASE_TYPE=postgresql\n      - APP_SECRET=${APP_SECRET}\n    depends_on:\n      db:\n        condition: service_healthy\n\n  db:\n    image: postgres:15-alpine\n    restart: unless-stopped\n    environment:\n      - POSTGRES_DB=umami\n      - POSTGRES_USER=umami\n      - POSTGRES_PASSWORD=${DB_PASSWORD}\n    volumes:\n      - umami_db:/var/lib/postgresql/data\n    healthcheck:\n      test: [\"CMD-SHELL\", \"pg_isready -U umami\"]\n      interval: 5s\n      timeout: 5s\n      retries: 5\n\nvolumes:\n  umami_db:\n",
             "env": [
                 {
@@ -159,7 +190,13 @@
             "description": "QwenPaw is a self-hosted personal AI assistant built on Qwen models. Run it on your own server for full data control — memory, skills, and configuration never leave your machine.\n\nFeatures multi-agent collaboration, extensible skills (scheduling, document processing, news digests), integrations with Telegram, Discord, WeChat, DingTalk, and Feishu, and persistent memory that evolves with use.\n\nAfter installing, open the web console and configure your model provider API key in Settings → Model Provider. Enable authentication (recommended) via the environment variables below.",
             "icon": "https://github.com/agentscope-ai.png",
             "category": "AI",
-            "tags": ["ai", "assistant", "agent", "llm", "qwen"],
+            "tags": [
+                "ai",
+                "assistant",
+                "agent",
+                "llm",
+                "qwen"
+            ],
             "compose": "services:\n  qwenpaw:\n    image: agentscope/qwenpaw:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:8088\"\n    environment:\n      - QWENPAW_AUTH_ENABLED=${AUTH_ENABLED}\n      - QWENPAW_AUTH_USERNAME=${AUTH_USERNAME}\n      - QWENPAW_AUTH_PASSWORD=${AUTH_PASSWORD}\n      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}\n    volumes:\n      - qwenpaw_data:/app/working\n      - qwenpaw_secrets:/app/working.secret\n      - qwenpaw_backups:/app/working.backups\n\nvolumes:\n  qwenpaw_data:\n  qwenpaw_secrets:\n  qwenpaw_backups:\n",
             "env": [
                 {
@@ -201,7 +238,14 @@
             "description": "9Router is an open-source AI API gateway that intelligently routes requests across 40+ providers (Claude, OpenAI, Gemini, Cursor, and more) and 100+ models. Features automatic token compression to cut costs, multi-account round-robin load balancing, real-time quota tracking, and seamless format translation between different AI platforms — all behind a single OpenAI-compatible endpoint.\n\nAfter installing, open the web UI and log in with the initial password. Then configure your provider API keys in the dashboard and point your apps at 9Router's endpoint.",
             "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJz48cmVjdCB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgcng9JzIwJyBmaWxsPScjRTY4QTZFJy8+PHRleHQgeD0nNTAnIHk9JzcwJyBmb250LXNpemU9JzYwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSd3aGl0ZScgZm9udC13ZWlnaHQ9J2JvbGQnPjk8L3RleHQ+PC9zdmc+",
             "category": "AI",
-            "tags": ["ai", "router", "llm", "proxy", "openai", "gateway"],
+            "tags": [
+                "ai",
+                "router",
+                "llm",
+                "proxy",
+                "openai",
+                "gateway"
+            ],
             "compose": "services:\n  9router:\n    image: decolua/9router:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:20128\"\n    environment:\n      - DATA_DIR=/app/data\n      - JWT_SECRET=${JWT_SECRET}\n      - INITIAL_PASSWORD=${INITIAL_PASSWORD}\n    volumes:\n      - 9router_data:/app/data\n\nvolumes:\n  9router_data:\n",
             "env": [
                 {
@@ -257,7 +301,14 @@
             "description": "Open WebUI is a feature-rich, self-hosted web interface for interacting with large language models. Works out of the box with Ollama and supports any OpenAI-compatible API.\n\nFeatures include multi-model chat, RAG document Q&A, image generation, voice input, user management, and full conversation history — all in a polished ChatGPT-style UI.\n\nTo connect a local Ollama instance set the Ollama URL below. To use OpenAI or another provider, leave Ollama URL blank and provide your API key.",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/open-webui.png",
             "category": "AI",
-            "tags": ["ai", "chat", "ollama", "llm", "interface", "openai"],
+            "tags": [
+                "ai",
+                "chat",
+                "ollama",
+                "llm",
+                "interface",
+                "openai"
+            ],
             "compose": "services:\n  open-webui:\n    image: ghcr.io/open-webui/open-webui:main\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:8080\"\n    environment:\n      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}\n      - OPENAI_API_KEY=${OPENAI_API_KEY}\n      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}\n    volumes:\n      - open_webui_data:/app/backend/data\n\nvolumes:\n  open_webui_data:\n",
             "env": [
                 {
@@ -293,7 +344,14 @@
             "description": "OmniRoute is an open-source AI API gateway that routes requests across 160+ providers (OpenAI, Claude, Gemini, Deepseek, Groq, and more) through a single OpenAI-compatible endpoint. Features automatic prompt compression for 15–95% token reduction, multi-account round-robin load balancing, auto-fallback on provider errors, and real-time usage tracking — all managed from a built-in dashboard.\n\nAfter installing, open the web UI, log in with your initial password, and add your provider API keys in Settings. Point your apps at OmniRoute's endpoint and select your routing strategy.",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/basic-memory.png",
             "category": "AI",
-            "tags": ["ai", "router", "llm", "proxy", "openai", "gateway"],
+            "tags": [
+                "ai",
+                "router",
+                "llm",
+                "proxy",
+                "openai",
+                "gateway"
+            ],
             "compose": "services:\n  omniroute:\n    image: diegosouzapw/omniroute:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:20128\"\n    environment:\n      - JWT_SECRET=${JWT_SECRET}\n      - API_KEY_SECRET=${API_KEY_SECRET}\n      - INITIAL_PASSWORD=${INITIAL_PASSWORD}\n      - NEXT_PUBLIC_BASE_URL=${BASE_URL}\n    volumes:\n      - omniroute_data:/app/data\n\nvolumes:\n  omniroute_data:\n",
             "env": [
                 {
@@ -335,7 +393,11 @@
             "description": "Uptime Kuma is an easy-to-use self-hosted monitoring tool for tracking uptime of websites, TCP ports, DNS, and more with notifications support.",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/uptime-kuma.png",
             "category": "Monitoring",
-            "tags": ["monitoring", "uptime", "alerting"],
+            "tags": [
+                "monitoring",
+                "uptime",
+                "alerting"
+            ],
             "compose": "services:\n  uptime-kuma:\n    image: louislam/uptime-kuma:2\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:3001\"\n    volumes:\n      - uptime_kuma_data:/app/data\n\nvolumes:\n  uptime_kuma_data:\n",
             "env": [
                 {
@@ -343,6 +405,40 @@
                     "label": "Port",
                     "default": "3001",
                     "description": "Host port to expose the Uptime Kuma web UI on."
+                }
+            ]
+        },
+        {
+            "id": "it-tools",
+            "name": "IT Tools",
+            "tagline": "Collection of handy online tools for developers",
+            "description": "IT Tools is a beautifully designed collection of developer utilities — converters, encoders, generators, formatters, and more — all running locally in your browser. No data leaves your server.\n\nIncludes tools for JWT decoding, UUID generation, hash computation, base64 encoding, color conversion, cron expression parsing, regex testing, text diffing, and dozens more.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/it-tools.png",
+            "category": "Utilities",
+            "tags": [
+                "developer",
+                "tools",
+                "utilities",
+                "converters",
+                "encoders"
+            ],
+            "compose": "services:\n  it-tools:\n    image: corentinth/it-tools:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:80\"\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8765",
+                    "description": "Host port to expose IT Tools on."
+                }
+            ],
+            "links": [
+                {
+                    "label": "GitHub",
+                    "url": "https://github.com/CorentinTh/it-tools"
+                },
+                {
+                    "label": "Demo",
+                    "url": "https://it-tools.tech"
                 }
             ]
         }
