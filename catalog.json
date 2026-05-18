@@ -202,7 +202,7 @@
             "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJz48cmVjdCB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgcng9JzIwJyBmaWxsPScjRTY4QTZFJy8+PHRleHQgeD0nNTAnIHk9JzcwJyBmb250LXNpemU9JzYwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSd3aGl0ZScgZm9udC13ZWlnaHQ9J2JvbGQnPjk8L3RleHQ+PC9zdmc+",
             "category": "AI",
             "tags": ["ai", "router", "llm", "proxy", "openai", "gateway"],
-            "compose": "services:\n  9router:\n    image: antiantiops/9router:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:20128\"\n    environment:\n      - DATA_DIR=/app/data\n      - JWT_SECRET=${JWT_SECRET}\n      - INITIAL_PASSWORD=${INITIAL_PASSWORD}\n    volumes:\n      - 9router_data:/app/data\n\nvolumes:\n  9router_data:\n",
+            "compose": "services:\n  9router:\n    image: decolua/9router:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:20128\"\n    environment:\n      - DATA_DIR=/app/data\n      - JWT_SECRET=${JWT_SECRET}\n      - INITIAL_PASSWORD=${INITIAL_PASSWORD}\n    volumes:\n      - 9router_data:/app/data\n\nvolumes:\n  9router_data:\n",
             "env": [
                 {
                     "key": "PORT",
