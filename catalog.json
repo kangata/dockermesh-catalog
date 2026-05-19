@@ -441,6 +441,41 @@
                     "url": "https://it-tools.tech"
                 }
             ]
+        },
+        {
+            "id": "nginx-proxy-manager",
+            "name": "Nginx Proxy Manager",
+            "tagline": "Reverse proxy with SSL termination and a beautiful web UI",
+            "description": "Nginx Proxy Manager makes it easy to forward traffic to your services with free SSL certificates from Let's Encrypt — no Nginx config files needed. Manage proxy hosts, redirections, 404 hosts, and stream hosts from a clean web dashboard.\n\nDefault admin credentials on first run:\n  Email:    admin@example.com\n  Password: changeme\n\nChange them immediately after first login. Ports 80 and 443 must be available on the host for SSL certificate renewal and HTTPS termination to work.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/nginx-proxy-manager.png",
+            "category": "Networking",
+            "tags": [
+                "nginx",
+                "proxy",
+                "reverse-proxy",
+                "ssl",
+                "letsencrypt",
+                "networking"
+            ],
+            "compose": "services:\n  nginx-proxy-manager:\n    image: jc21/nginx-proxy-manager:latest\n    restart: unless-stopped\n    ports:\n      - \"80:80\"\n      - \"443:443\"\n      - \"${ADMIN_PORT}:81\"\n    volumes:\n      - npm_data:/data\n      - npm_letsencrypt:/etc/letsencrypt\n\nvolumes:\n  npm_data:\n  npm_letsencrypt:\n",
+            "env": [
+                {
+                    "key": "ADMIN_PORT",
+                    "label": "Admin UI Port",
+                    "default": "81",
+                    "description": "Host port for the Nginx Proxy Manager web dashboard."
+                }
+            ],
+            "links": [
+                {
+                    "label": "GitHub",
+                    "url": "https://github.com/NginxProxyManager/nginx-proxy-manager"
+                },
+                {
+                    "label": "Documentation",
+                    "url": "https://nginxproxymanager.com/guide/"
+                }
+            ]
         }
     ]
 }
