@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "updated_at": "2026-05-19",
+    "updated_at": "2026-05-20",
     "apps": [
         {
             "id": "cloudflare-tunnel",
@@ -9,12 +9,7 @@
             "description": "Cloudflare Tunnel creates a secure outbound connection from your server to Cloudflare's network — no inbound firewall rules or public IPs needed. Get your tunnel token from the Cloudflare Zero Trust dashboard.",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/cloudflare.png",
             "category": "Networking",
-            "tags": [
-                "cloudflare",
-                "tunnel",
-                "proxy",
-                "networking"
-            ],
+            "tags": ["cloudflare", "tunnel", "proxy", "networking"],
             "compose": "services:\n  cloudflared:\n    image: cloudflare/cloudflared:latest\n    restart: unless-stopped\n    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}\n",
             "env": [
                 {
@@ -32,12 +27,7 @@
             "description": "WG-Easy is the easiest way to run WireGuard VPN + a web UI for managing peers. Requires your server's public IP or hostname and a password hash.\n\nGenerate password hash on your server:\n  docker run --rm ghcr.io/wg-easy/wg-easy:15 wgpw 'your-password'",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/wireguard.png",
             "category": "Networking",
-            "tags": [
-                "vpn",
-                "wireguard",
-                "networking",
-                "security"
-            ],
+            "tags": ["vpn", "wireguard", "networking", "security"],
             "compose": "services:\n  wg-easy:\n    image: ghcr.io/wg-easy/wg-easy:15\n    restart: unless-stopped\n    environment:\n      - WG_HOST=${WG_HOST}\n      - WG_PORT=${WG_PORT}\n      - WG_DEFAULT_DNS=${WG_DEFAULT_DNS}\n    ports:\n      - \"${WG_PORT}:${WG_PORT}/udp\"\n      - \"${WEBUI_PORT}:51821/tcp\"\n    volumes:\n      - wg_data:/etc/wireguard\n    cap_add:\n      - NET_ADMIN\n      - SYS_MODULE\n    sysctls:\n      - net.ipv4.conf.all.src_valid_mark=1\n      - net.ipv4.ip_forward=1\n\nvolumes:\n  wg_data:\n",
             "env": [
                 {
@@ -67,18 +57,455 @@
             ]
         },
         {
+            "id": "nginx-proxy-manager",
+            "name": "Nginx Proxy Manager",
+            "tagline": "Reverse proxy with SSL termination and a beautiful web UI",
+            "description": "Nginx Proxy Manager makes it easy to forward traffic to your services with free SSL certificates from Let's Encrypt — no Nginx config files needed. Manage proxy hosts, redirections, 404 hosts, and stream hosts from a clean web dashboard.\n\nDefault admin credentials on first run:\n  Email:    admin@example.com\n  Password: changeme\n\nChange them immediately after first login. Ports 80 and 443 must be available on the host for SSL certificate renewal and HTTPS termination to work.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/nginx-proxy-manager.png",
+            "category": "Networking",
+            "tags": ["nginx", "proxy", "reverse-proxy", "ssl", "letsencrypt", "networking"],
+            "compose": "services:\n  nginx-proxy-manager:\n    image: jc21/nginx-proxy-manager:latest\n    restart: unless-stopped\n    ports:\n      - \"80:80\"\n      - \"443:443\"\n      - \"${ADMIN_PORT}:81\"\n    volumes:\n      - npm_data:/data\n      - npm_letsencrypt:/etc/letsencrypt\n\nvolumes:\n  npm_data:\n  npm_letsencrypt:\n",
+            "env": [
+                {
+                    "key": "ADMIN_PORT",
+                    "label": "Admin UI Port",
+                    "default": "81",
+                    "description": "Host port for the Nginx Proxy Manager web dashboard."
+                }
+            ],
+            "links": [
+                { "label": "GitHub", "url": "https://github.com/NginxProxyManager/nginx-proxy-manager" },
+                { "label": "Documentation", "url": "https://nginxproxymanager.com/guide/" }
+            ]
+        },
+        {
+            "id": "mysql",
+            "name": "MySQL",
+            "tagline": "The world's most popular open-source relational database",
+            "description": "MySQL is a battle-tested open-source relational database used by millions of applications worldwide. This setup runs MySQL 8 with a named volume for persistent data and exposes the standard port for external client connections.\n\nConnect with any MySQL client using the credentials you set below. The root password is required; the app database and user are optional convenience defaults.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/mysql.png",
+            "category": "Databases",
+            "tags": ["database", "mysql", "sql", "relational"],
+            "compose": "services:\n  mysql:\n    image: mysql:8\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:3306\"\n    environment:\n      - MYSQL_ROOT_PASSWORD=${ROOT_PASSWORD}\n      - MYSQL_DATABASE=${DB_NAME}\n      - MYSQL_USER=${DB_USER}\n      - MYSQL_PASSWORD=${DB_PASSWORD}\n    volumes:\n      - mysql_data:/var/lib/mysql\n\nvolumes:\n  mysql_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "3306",
+                    "description": "Host port to expose MySQL on."
+                },
+                {
+                    "key": "ROOT_PASSWORD",
+                    "label": "Root Password",
+                    "default": "",
+                    "description": "Password for the MySQL root user. Use a strong random string."
+                },
+                {
+                    "key": "DB_NAME",
+                    "label": "Default Database",
+                    "default": "app",
+                    "description": "Name of the initial database to create."
+                },
+                {
+                    "key": "DB_USER",
+                    "label": "Database User",
+                    "default": "app",
+                    "description": "Name of the initial non-root user."
+                },
+                {
+                    "key": "DB_PASSWORD",
+                    "label": "Database Password",
+                    "default": "",
+                    "description": "Password for the initial database user."
+                }
+            ]
+        },
+        {
+            "id": "mariadb",
+            "name": "MariaDB",
+            "tagline": "Community-developed MySQL-compatible relational database",
+            "description": "MariaDB is a drop-in replacement for MySQL, developed by the original MySQL team. It offers improved performance, additional storage engines, and an active open-source community.\n\nFully compatible with MySQL clients and most MySQL applications. Use the same port and credentials format as MySQL.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/mariadb.png",
+            "category": "Databases",
+            "tags": ["database", "mariadb", "mysql", "sql", "relational"],
+            "compose": "services:\n  mariadb:\n    image: mariadb:11\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:3306\"\n    environment:\n      - MARIADB_ROOT_PASSWORD=${ROOT_PASSWORD}\n      - MARIADB_DATABASE=${DB_NAME}\n      - MARIADB_USER=${DB_USER}\n      - MARIADB_PASSWORD=${DB_PASSWORD}\n    volumes:\n      - mariadb_data:/var/lib/mysql\n\nvolumes:\n  mariadb_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "3306",
+                    "description": "Host port to expose MariaDB on."
+                },
+                {
+                    "key": "ROOT_PASSWORD",
+                    "label": "Root Password",
+                    "default": "",
+                    "description": "Password for the MariaDB root user."
+                },
+                {
+                    "key": "DB_NAME",
+                    "label": "Default Database",
+                    "default": "app",
+                    "description": "Name of the initial database to create."
+                },
+                {
+                    "key": "DB_USER",
+                    "label": "Database User",
+                    "default": "app",
+                    "description": "Name of the initial non-root user."
+                },
+                {
+                    "key": "DB_PASSWORD",
+                    "label": "Database Password",
+                    "default": "",
+                    "description": "Password for the initial database user."
+                }
+            ]
+        },
+        {
+            "id": "postgresql",
+            "name": "PostgreSQL",
+            "tagline": "Advanced open-source object-relational database",
+            "description": "PostgreSQL is a powerful, standards-compliant relational database with advanced features like JSONB, full-text search, window functions, CTEs, and extensive indexing options.\n\nConnect with any PostgreSQL client (e.g. psql, pgAdmin, DBeaver) using the credentials below.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/postgresql.png",
+            "category": "Databases",
+            "tags": ["database", "postgresql", "postgres", "sql", "relational"],
+            "compose": "services:\n  postgresql:\n    image: postgres:16-alpine\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:5432\"\n    environment:\n      - POSTGRES_DB=${DB_NAME}\n      - POSTGRES_USER=${DB_USER}\n      - POSTGRES_PASSWORD=${DB_PASSWORD}\n    volumes:\n      - postgresql_data:/var/lib/postgresql/data\n\nvolumes:\n  postgresql_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "5432",
+                    "description": "Host port to expose PostgreSQL on."
+                },
+                {
+                    "key": "DB_NAME",
+                    "label": "Database Name",
+                    "default": "app",
+                    "description": "Name of the default database."
+                },
+                {
+                    "key": "DB_USER",
+                    "label": "Database User",
+                    "default": "app",
+                    "description": "Name of the superuser."
+                },
+                {
+                    "key": "DB_PASSWORD",
+                    "label": "Database Password",
+                    "default": "",
+                    "description": "Password for the database user. Use a strong random string."
+                }
+            ]
+        },
+        {
+            "id": "redis",
+            "name": "Redis",
+            "tagline": "In-memory data store for caching, queues, and pub/sub",
+            "description": "Redis is an ultra-fast in-memory data structure store used as a cache, message broker, session store, and real-time leaderboard backend. This setup uses the Alpine image with persistent AOF logging and optional password authentication.\n\nLeave the password blank to run without authentication (suitable for private networks only).",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/redis.png",
+            "category": "Databases",
+            "tags": ["database", "redis", "cache", "queue", "pubsub"],
+            "compose": "services:\n  redis:\n    image: redis:7-alpine\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:6379\"\n    command: >-\n      redis-server\n      --appendonly yes\n      ${REDIS_PASSWORD:+--requirepass ${REDIS_PASSWORD}}\n    volumes:\n      - redis_data:/data\n\nvolumes:\n  redis_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "6379",
+                    "description": "Host port to expose Redis on."
+                },
+                {
+                    "key": "REDIS_PASSWORD",
+                    "label": "Password",
+                    "default": "",
+                    "description": "Optional password for Redis AUTH. Leave blank to disable authentication (only safe on private networks)."
+                }
+            ]
+        },
+        {
+            "id": "mongodb",
+            "name": "MongoDB",
+            "tagline": "Document-oriented NoSQL database for flexible data models",
+            "description": "MongoDB is a leading NoSQL database that stores data as flexible JSON-like documents instead of rows and columns. Ideal for applications with evolving schemas, hierarchical data, or high write throughput.\n\nConnect with any MongoDB client (e.g. mongosh, MongoDB Compass) using the credentials below.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/mongodb.png",
+            "category": "Databases",
+            "tags": ["database", "mongodb", "nosql", "document"],
+            "compose": "services:\n  mongodb:\n    image: mongo:7\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:27017\"\n    environment:\n      - MONGO_INITDB_ROOT_USERNAME=${ROOT_USER}\n      - MONGO_INITDB_ROOT_PASSWORD=${ROOT_PASSWORD}\n      - MONGO_INITDB_DATABASE=${DB_NAME}\n    volumes:\n      - mongodb_data:/data/db\n\nvolumes:\n  mongodb_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "27017",
+                    "description": "Host port to expose MongoDB on."
+                },
+                {
+                    "key": "ROOT_USER",
+                    "label": "Root Username",
+                    "default": "root",
+                    "description": "Username for the MongoDB root user."
+                },
+                {
+                    "key": "ROOT_PASSWORD",
+                    "label": "Root Password",
+                    "default": "",
+                    "description": "Password for the MongoDB root user. Use a strong random string."
+                },
+                {
+                    "key": "DB_NAME",
+                    "label": "Initial Database",
+                    "default": "app",
+                    "description": "Name of the initial database to create."
+                }
+            ]
+        },
+        {
+            "id": "adminer",
+            "name": "Adminer",
+            "tagline": "Full-featured database management UI in a single container",
+            "description": "Adminer is a lightweight, single-file database management tool that supports MySQL, MariaDB, PostgreSQL, SQLite, MS SQL, Oracle, Elasticsearch, and more — all from one container.\n\nNavigate to the web UI and enter your database host, credentials, and database name to connect. When connecting to another Docker service, use the service name as the host.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/adminer.png",
+            "category": "Databases",
+            "tags": ["database", "admin", "mysql", "postgresql", "ui"],
+            "compose": "services:\n  adminer:\n    image: adminer:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:8080\"\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8080",
+                    "description": "Host port to expose the Adminer web UI on."
+                }
+            ]
+        },
+        {
+            "id": "phpmyadmin",
+            "name": "phpMyAdmin",
+            "tagline": "Web-based MySQL and MariaDB administration tool",
+            "description": "phpMyAdmin is the most widely used web interface for managing MySQL and MariaDB databases. Browse tables, run queries, import/export data, and manage users from your browser.\n\nSet the MySQL host to the service name or IP of your MySQL/MariaDB container. When running alongside another Docker Compose service, use the service name as the host.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/phpmyadmin.png",
+            "category": "Databases",
+            "tags": ["database", "admin", "mysql", "mariadb", "ui", "php"],
+            "compose": "services:\n  phpmyadmin:\n    image: phpmyadmin:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:80\"\n    environment:\n      - PMA_HOST=${MYSQL_HOST}\n      - PMA_PORT=${MYSQL_PORT}\n      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8080",
+                    "description": "Host port to expose phpMyAdmin on."
+                },
+                {
+                    "key": "MYSQL_HOST",
+                    "label": "MySQL Host",
+                    "default": "mysql",
+                    "description": "Hostname or IP of your MySQL/MariaDB server. Use the Docker service name when on the same network."
+                },
+                {
+                    "key": "MYSQL_PORT",
+                    "label": "MySQL Port",
+                    "default": "3306",
+                    "description": "Port your MySQL/MariaDB server is listening on."
+                },
+                {
+                    "key": "MYSQL_ROOT_PASSWORD",
+                    "label": "MySQL Root Password",
+                    "default": "",
+                    "description": "Root password of your MySQL/MariaDB server. Used to allow root login via phpMyAdmin."
+                }
+            ]
+        },
+        {
+            "id": "pgadmin",
+            "name": "pgAdmin 4",
+            "tagline": "Feature-rich web interface for managing PostgreSQL databases",
+            "description": "pgAdmin 4 is the leading open-source management and administration tool for PostgreSQL. Query editor with syntax highlighting, ERD diagrams, server monitoring, backup/restore, and much more.\n\nLog in with the email and password you set below. Then right-click Servers → Register → Server and enter your PostgreSQL connection details.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/pgadmin.png",
+            "category": "Databases",
+            "tags": ["database", "admin", "postgresql", "postgres", "ui"],
+            "compose": "services:\n  pgadmin:\n    image: dpage/pgadmin4:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:80\"\n    environment:\n      - PGADMIN_DEFAULT_EMAIL=${ADMIN_EMAIL}\n      - PGADMIN_DEFAULT_PASSWORD=${ADMIN_PASSWORD}\n    volumes:\n      - pgadmin_data:/var/lib/pgadmin\n\nvolumes:\n  pgadmin_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "5050",
+                    "description": "Host port to expose pgAdmin on."
+                },
+                {
+                    "key": "ADMIN_EMAIL",
+                    "label": "Admin Email",
+                    "default": "admin@example.com",
+                    "description": "Email address used to log in to pgAdmin."
+                },
+                {
+                    "key": "ADMIN_PASSWORD",
+                    "label": "Admin Password",
+                    "default": "",
+                    "description": "Password for the pgAdmin admin account. Use a strong password."
+                }
+            ]
+        },
+        {
+            "id": "minio",
+            "name": "MinIO",
+            "tagline": "High-performance S3-compatible self-hosted object storage",
+            "description": "MinIO is a high-performance, Kubernetes-native object storage system that is API-compatible with Amazon S3. Use it for storing files, backups, ML datasets, and media — with the same SDK and tooling as AWS S3.\n\nAfter installing, open the console and create buckets and access keys. Use the API port (9000) for S3-compatible clients and the console port (9001) for the web UI.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/minio.png",
+            "category": "Storage",
+            "tags": ["storage", "s3", "object-storage", "backup", "files"],
+            "compose": "services:\n  minio:\n    image: minio/minio:latest\n    restart: unless-stopped\n    command: server /data --console-address \":9001\"\n    ports:\n      - \"${API_PORT}:9000\"\n      - \"${CONSOLE_PORT}:9001\"\n    environment:\n      - MINIO_ROOT_USER=${ROOT_USER}\n      - MINIO_ROOT_PASSWORD=${ROOT_PASSWORD}\n    volumes:\n      - minio_data:/data\n\nvolumes:\n  minio_data:\n",
+            "env": [
+                {
+                    "key": "API_PORT",
+                    "label": "API Port",
+                    "default": "9000",
+                    "description": "Host port for the S3-compatible API endpoint. Point your S3 clients here."
+                },
+                {
+                    "key": "CONSOLE_PORT",
+                    "label": "Console Port",
+                    "default": "9001",
+                    "description": "Host port for the MinIO web console."
+                },
+                {
+                    "key": "ROOT_USER",
+                    "label": "Root User",
+                    "default": "minioadmin",
+                    "description": "Username for the MinIO root account (acts as AWS Access Key ID)."
+                },
+                {
+                    "key": "ROOT_PASSWORD",
+                    "label": "Root Password",
+                    "default": "",
+                    "description": "Password for the MinIO root account (acts as AWS Secret Access Key). Minimum 8 characters."
+                }
+            ]
+        },
+        {
+            "id": "nextcloud",
+            "name": "Nextcloud",
+            "tagline": "Self-hosted productivity platform — files, calendar, contacts, and more",
+            "description": "Nextcloud is the most popular self-hosted cloud platform. It replaces Google Drive, Dropbox, Google Calendar, Contacts, and more — all running on your own server with full control of your data.\n\nAfter installing, complete the setup wizard in the browser to create your admin account and configure the database. The bundled MariaDB handles data storage.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/nextcloud.png",
+            "category": "Storage",
+            "tags": ["storage", "files", "calendar", "contacts", "productivity", "cloud"],
+            "compose": "services:\n  nextcloud:\n    image: nextcloud:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:80\"\n    environment:\n      - MYSQL_HOST=db\n      - MYSQL_DATABASE=nextcloud\n      - MYSQL_USER=nextcloud\n      - MYSQL_PASSWORD=${DB_PASSWORD}\n      - NEXTCLOUD_ADMIN_USER=${ADMIN_USER}\n      - NEXTCLOUD_ADMIN_PASSWORD=${ADMIN_PASSWORD}\n    volumes:\n      - nextcloud_data:/var/www/html\n    depends_on:\n      - db\n\n  db:\n    image: mariadb:11\n    restart: unless-stopped\n    environment:\n      - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}\n      - MARIADB_DATABASE=nextcloud\n      - MARIADB_USER=nextcloud\n      - MARIADB_PASSWORD=${DB_PASSWORD}\n    volumes:\n      - nextcloud_db:/var/lib/mysql\n\nvolumes:\n  nextcloud_data:\n  nextcloud_db:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8080",
+                    "description": "Host port to expose Nextcloud on."
+                },
+                {
+                    "key": "ADMIN_USER",
+                    "label": "Admin Username",
+                    "default": "admin",
+                    "description": "Username for the initial Nextcloud admin account."
+                },
+                {
+                    "key": "ADMIN_PASSWORD",
+                    "label": "Admin Password",
+                    "default": "",
+                    "description": "Password for the initial Nextcloud admin account."
+                },
+                {
+                    "key": "DB_PASSWORD",
+                    "label": "Database Password",
+                    "default": "",
+                    "description": "Password for the internal MariaDB nextcloud user. Use a strong random string."
+                },
+                {
+                    "key": "DB_ROOT_PASSWORD",
+                    "label": "Database Root Password",
+                    "default": "",
+                    "description": "Root password for the internal MariaDB instance."
+                }
+            ]
+        },
+        {
+            "id": "filebrowser",
+            "name": "File Browser",
+            "tagline": "Web-based file manager for your server's filesystem",
+            "description": "File Browser provides a web interface for browsing, uploading, downloading, editing, and managing files on your server. Supports user management, sharing links, and basic file operations.\n\nDefault credentials on first run: admin / admin — change them immediately in Settings.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/filebrowser.png",
+            "category": "Storage",
+            "tags": ["files", "storage", "file-manager", "upload"],
+            "compose": "services:\n  filebrowser:\n    image: filebrowser/filebrowser:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:80\"\n    volumes:\n      - ${ROOT_PATH}:/srv\n      - filebrowser_data:/database\n\nvolumes:\n  filebrowser_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8080",
+                    "description": "Host port to expose File Browser on."
+                },
+                {
+                    "key": "ROOT_PATH",
+                    "label": "Root Path",
+                    "default": "/",
+                    "description": "Host path to expose as the root directory in File Browser. Use / to browse the entire server filesystem."
+                }
+            ]
+        },
+        {
+            "id": "grafana",
+            "name": "Grafana",
+            "tagline": "Open-source analytics and monitoring dashboards",
+            "description": "Grafana is the most widely used open-source platform for monitoring and observability. Connect it to Prometheus, InfluxDB, Loki, MySQL, PostgreSQL, Elasticsearch, and 50+ other data sources to build beautiful dashboards and alerts.\n\nDefault credentials: admin / admin — you will be prompted to change the password on first login.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/grafana.png",
+            "category": "Monitoring",
+            "tags": ["monitoring", "dashboards", "metrics", "alerting", "observability"],
+            "compose": "services:\n  grafana:\n    image: grafana/grafana:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:3000\"\n    environment:\n      - GF_SECURITY_ADMIN_USER=${ADMIN_USER}\n      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD}\n    volumes:\n      - grafana_data:/var/lib/grafana\n\nvolumes:\n  grafana_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "3000",
+                    "description": "Host port to expose Grafana on."
+                },
+                {
+                    "key": "ADMIN_USER",
+                    "label": "Admin Username",
+                    "default": "admin",
+                    "description": "Username for the Grafana admin account."
+                },
+                {
+                    "key": "ADMIN_PASSWORD",
+                    "label": "Admin Password",
+                    "default": "admin",
+                    "description": "Password for the Grafana admin account. Change this after first login."
+                }
+            ]
+        },
+        {
+            "id": "prometheus",
+            "name": "Prometheus",
+            "tagline": "Metrics collection and alerting system for infrastructure monitoring",
+            "description": "Prometheus is an open-source monitoring system that collects and stores time-series metrics from configured targets. It pairs naturally with Grafana for visualization and Alertmanager for notifications.\n\nAfter installing, edit the prometheus.yml config file in the data volume to add your scrape targets (e.g. node_exporter, cAdvisor, your apps).",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/prometheus.png",
+            "category": "Monitoring",
+            "tags": ["monitoring", "metrics", "alerting", "observability", "time-series"],
+            "compose": "services:\n  prometheus:\n    image: prom/prometheus:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:9090\"\n    volumes:\n      - prometheus_data:/prometheus\n    command:\n      - '--config.file=/etc/prometheus/prometheus.yml'\n      - '--storage.tsdb.path=/prometheus'\n      - '--storage.tsdb.retention.time=${RETENTION}'\n\nvolumes:\n  prometheus_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "9090",
+                    "description": "Host port to expose the Prometheus web UI and API on."
+                },
+                {
+                    "key": "RETENTION",
+                    "label": "Data Retention",
+                    "default": "15d",
+                    "description": "How long to keep metrics data (e.g. 15d, 30d). Older data is automatically pruned."
+                }
+            ]
+        },
+        {
             "id": "beszel",
             "name": "Beszel",
             "tagline": "Lightweight server and Docker monitoring hub",
             "description": "Beszel is a lightweight server monitoring platform with a web UI for tracking CPU, memory, disk, and Docker container stats across multiple systems.",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/beszel.png",
             "category": "Monitoring",
-            "tags": [
-                "monitoring",
-                "dashboard",
-                "docker",
-                "metrics"
-            ],
+            "tags": ["monitoring", "dashboard", "docker", "metrics"],
             "compose": "services:\n  beszel:\n    image: henrygd/beszel:latest\n    restart: unless-stopped\n    environment:\n      - APP_URL=${APP_URL}\n    ports:\n      - \"${PORT}:8090\"\n    volumes:\n      - beszel_data:/beszel_data\n\nvolumes:\n  beszel_data:\n",
             "env": [
                 {
@@ -96,18 +523,31 @@
             ]
         },
         {
+            "id": "uptime-kuma",
+            "name": "Uptime Kuma",
+            "tagline": "Self-hosted uptime monitoring tool with a fancy UI",
+            "description": "Uptime Kuma is an easy-to-use self-hosted monitoring tool for tracking uptime of websites, TCP ports, DNS, and more with notifications support.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/uptime-kuma.png",
+            "category": "Monitoring",
+            "tags": ["monitoring", "uptime", "alerting"],
+            "compose": "services:\n  uptime-kuma:\n    image: louislam/uptime-kuma:2\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:3001\"\n    volumes:\n      - uptime_kuma_data:/app/data\n\nvolumes:\n  uptime_kuma_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "3001",
+                    "description": "Host port to expose the Uptime Kuma web UI on."
+                }
+            ]
+        },
+        {
             "id": "myspeed",
             "name": "MySpeed",
             "tagline": "Self-hosted internet speed test tracker",
             "description": "MySpeed saves your internet speed test results over time so you can track performance trends, detect outages, and monitor your ISP's reliability — all from a clean self-hosted dashboard.",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/myspeed.png",
             "category": "Monitoring",
-            "tags": [
-                "speedtest",
-                "monitoring",
-                "network",
-                "dashboard"
-            ],
+            "tags": ["speedtest", "monitoring", "network", "dashboard"],
             "compose": "services:\n  myspeed:\n    image: germannewsmaker/myspeed:latest\n    container_name: myspeed\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:5216\"\n    volumes:\n      - myspeed_data:/myspeed/data\n\nvolumes:\n  myspeed_data:\n",
             "env": [
                 {
@@ -125,13 +565,7 @@
             "description": "Scrutiny monitors the S.M.A.R.T. health of all your hard drives and SSDs, surfacing failure predictions and historical trends in a clean web dashboard. The omnibus image bundles the web UI and InfluxDB time-series store in a single container.\n\nAfter installing, add your disk devices to the compose file — by default /dev/sda is included. Add more entries (e.g. /dev/sdb, /dev/nvme0n1) as needed.",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/scrutiny.png",
             "category": "Monitoring",
-            "tags": [
-                "monitoring",
-                "smart",
-                "hard-drive",
-                "health",
-                "storage"
-            ],
+            "tags": ["monitoring", "smart", "hard-drive", "health", "storage"],
             "compose": "services:\n  scrutiny:\n    image: ghcr.io/analogj/scrutiny:master-omnibus\n    restart: unless-stopped\n    cap_add:\n      - SYS_RAWIO\n    ports:\n      - \"${PORT}:8080\"\n      - \"${INFLUXDB_PORT}:8086\"\n    volumes:\n      - /run/udev:/run/udev:ro\n      - scrutiny_config:/opt/scrutiny/config\n      - scrutiny_influxdb:/opt/scrutiny/influxdb\n    devices:\n      - /dev/sda\n      # Add more drives: /dev/sdb, /dev/nvme0n1, etc.\n\nvolumes:\n  scrutiny_config:\n  scrutiny_influxdb:\n",
             "env": [
                 {
@@ -149,18 +583,431 @@
             ]
         },
         {
+            "id": "portainer-ce",
+            "name": "Portainer CE",
+            "tagline": "Container management UI for Docker and Kubernetes",
+            "description": "Portainer Community Edition is a lightweight management UI that lets you easily manage your Docker environments — containers, images, networks, volumes, and stacks — from a browser.\n\nThe agent service lets Portainer manage the local Docker socket. The web UI is exposed on the port you choose. On first run, create your admin account within 5 minutes or the instance will lock down.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/portainer.png",
+            "category": "Management",
+            "tags": ["docker", "management", "containers", "ui", "orchestration"],
+            "compose": "services:\n  portainer:\n    image: portainer/portainer-ce:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:9443\"\n    volumes:\n      - /var/run/docker.sock:/var/run/docker.sock\n      - portainer_data:/data\n\nvolumes:\n  portainer_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "HTTPS Port",
+                    "default": "9443",
+                    "description": "Host port to expose the Portainer web UI on (HTTPS)."
+                }
+            ]
+        },
+        {
+            "id": "dockge",
+            "name": "Dockge",
+            "tagline": "Fancy self-hosted Docker Compose stack manager",
+            "description": "Dockge is a modern, reactive Docker Compose stack manager with a clean UI. Manage your compose stacks, view real-time logs, start/stop services, and edit compose files — all from a single web interface.\n\nStacks are stored under the stacks path you configure. Each subfolder is treated as a separate compose project.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/dockge.png",
+            "category": "Management",
+            "tags": ["docker", "management", "compose", "ui", "stacks"],
+            "compose": "services:\n  dockge:\n    image: louislam/dockge:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:5001\"\n    volumes:\n      - /var/run/docker.sock:/var/run/docker.sock\n      - dockge_data:/app/data\n      - ${STACKS_PATH}:/opt/stacks\n    environment:\n      - DOCKGE_STACKS_DIR=/opt/stacks\n\nvolumes:\n  dockge_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "5001",
+                    "description": "Host port to expose the Dockge web UI on."
+                },
+                {
+                    "key": "STACKS_PATH",
+                    "label": "Stacks Path",
+                    "default": "/opt/stacks",
+                    "description": "Host directory where compose stacks will be stored. Each subdirectory is a stack."
+                }
+            ]
+        },
+        {
+            "id": "gitea",
+            "name": "Gitea",
+            "tagline": "Lightweight self-hosted Git service",
+            "description": "Gitea is a painless, self-hosted Git platform with a GitHub-like interface. It supports repositories, issues, pull requests, wikis, project boards, CI/CD via Gitea Actions, and package registries — all in a single lightweight binary.\n\nOn first access, complete the installation wizard. The bundled PostgreSQL handles data storage.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/gitea.png",
+            "category": "Development",
+            "tags": ["git", "repository", "devops", "ci-cd", "source-control"],
+            "compose": "services:\n  gitea:\n    image: gitea/gitea:latest\n    restart: unless-stopped\n    ports:\n      - \"${HTTP_PORT}:3000\"\n      - \"${SSH_PORT}:22\"\n    environment:\n      - GITEA__database__DB_TYPE=postgres\n      - GITEA__database__HOST=db:5432\n      - GITEA__database__NAME=gitea\n      - GITEA__database__USER=gitea\n      - GITEA__database__PASSWD=${DB_PASSWORD}\n    volumes:\n      - gitea_data:/data\n    depends_on:\n      - db\n\n  db:\n    image: postgres:15-alpine\n    restart: unless-stopped\n    environment:\n      - POSTGRES_DB=gitea\n      - POSTGRES_USER=gitea\n      - POSTGRES_PASSWORD=${DB_PASSWORD}\n    volumes:\n      - gitea_db:/var/lib/postgresql/data\n\nvolumes:\n  gitea_data:\n  gitea_db:\n",
+            "env": [
+                {
+                    "key": "HTTP_PORT",
+                    "label": "HTTP Port",
+                    "default": "3000",
+                    "description": "Host port for the Gitea web UI."
+                },
+                {
+                    "key": "SSH_PORT",
+                    "label": "SSH Port",
+                    "default": "2222",
+                    "description": "Host port for Git SSH operations."
+                },
+                {
+                    "key": "DB_PASSWORD",
+                    "label": "Database Password",
+                    "default": "",
+                    "description": "Password for the internal PostgreSQL database. Use a strong random string."
+                }
+            ]
+        },
+        {
+            "id": "code-server",
+            "name": "Code Server",
+            "tagline": "VS Code in the browser — code from anywhere",
+            "description": "Code Server runs VS Code on a remote server and lets you access it from any browser. Install extensions, open terminals, edit files, and run debuggers — all remotely with full VS Code features.\n\nSet a strong password to protect access. The workspace path is the host directory opened in the editor.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/code-server.png",
+            "category": "Development",
+            "tags": ["development", "ide", "vscode", "editor", "remote"],
+            "compose": "services:\n  code-server:\n    image: lscr.io/linuxserver/code-server:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:8443\"\n    environment:\n      - PUID=1000\n      - PGID=1000\n      - PASSWORD=${PASSWORD}\n      - SUDO_PASSWORD=${SUDO_PASSWORD}\n      - DEFAULT_WORKSPACE=/workspace\n    volumes:\n      - code_server_config:/config\n      - ${WORKSPACE_PATH}:/workspace\n\nvolumes:\n  code_server_config:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8443",
+                    "description": "Host port to expose Code Server on."
+                },
+                {
+                    "key": "PASSWORD",
+                    "label": "Password",
+                    "default": "",
+                    "description": "Password required to access the Code Server UI. Use a strong password."
+                },
+                {
+                    "key": "SUDO_PASSWORD",
+                    "label": "Sudo Password",
+                    "default": "",
+                    "description": "Password for sudo access inside the Code Server terminal. Can match the main password."
+                },
+                {
+                    "key": "WORKSPACE_PATH",
+                    "label": "Workspace Path",
+                    "default": "/home",
+                    "description": "Host directory to open as the default workspace in VS Code."
+                }
+            ]
+        },
+        {
+            "id": "n8n",
+            "name": "n8n",
+            "tagline": "Workflow automation with a visual editor and 400+ integrations",
+            "description": "n8n is a powerful workflow automation tool with a node-based visual editor. Connect 400+ services — APIs, databases, messaging apps, cloud platforms — into automated workflows without writing code (or with code when needed).\n\nAfter installing, open the web UI and create your first workflow. Set a strong encryption key and basic auth credentials for security.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/n8n.png",
+            "category": "Automation",
+            "tags": ["automation", "workflow", "integration", "nocode", "zapier"],
+            "compose": "services:\n  n8n:\n    image: n8nio/n8n:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:5678\"\n    environment:\n      - N8N_BASIC_AUTH_ACTIVE=true\n      - N8N_BASIC_AUTH_USER=${ADMIN_USER}\n      - N8N_BASIC_AUTH_PASSWORD=${ADMIN_PASSWORD}\n      - N8N_ENCRYPTION_KEY=${ENCRYPTION_KEY}\n      - WEBHOOK_URL=${WEBHOOK_URL}\n    volumes:\n      - n8n_data:/home/node/.n8n\n\nvolumes:\n  n8n_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "5678",
+                    "description": "Host port to expose n8n on."
+                },
+                {
+                    "key": "ADMIN_USER",
+                    "label": "Admin Username",
+                    "default": "admin",
+                    "description": "Username for basic auth protection."
+                },
+                {
+                    "key": "ADMIN_PASSWORD",
+                    "label": "Admin Password",
+                    "default": "",
+                    "description": "Password for basic auth protection. Use a strong password."
+                },
+                {
+                    "key": "ENCRYPTION_KEY",
+                    "label": "Encryption Key",
+                    "default": "",
+                    "description": "Secret key used to encrypt stored credentials. Use a long random string (e.g. openssl rand -hex 32). Required — do not change after setup."
+                },
+                {
+                    "key": "WEBHOOK_URL",
+                    "label": "Webhook URL",
+                    "default": "http://localhost:5678",
+                    "description": "Public URL where n8n is accessible. Used to generate webhook URLs. Set to your domain if behind a reverse proxy."
+                }
+            ]
+        },
+        {
+            "id": "jellyfin",
+            "name": "Jellyfin",
+            "tagline": "Free and open-source media server — stream your movies, music, and TV",
+            "description": "Jellyfin is a free software media system that lets you manage and stream your personal media collection — movies, TV shows, music, photos, and live TV. No subscriptions, no tracking, no external servers.\n\nMount your media directories under /media in the compose file. On first run, complete the setup wizard to create your admin account and add your libraries.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/jellyfin.png",
+            "category": "Media",
+            "tags": ["media", "streaming", "movies", "music", "tv", "plex-alternative"],
+            "compose": "services:\n  jellyfin:\n    image: jellyfin/jellyfin:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:8096\"\n    volumes:\n      - jellyfin_config:/config\n      - jellyfin_cache:/cache\n      - ${MEDIA_PATH}:/media\n\nvolumes:\n  jellyfin_config:\n  jellyfin_cache:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8096",
+                    "description": "Host port to expose Jellyfin on."
+                },
+                {
+                    "key": "MEDIA_PATH",
+                    "label": "Media Path",
+                    "default": "/mnt/media",
+                    "description": "Host directory containing your media files. Subdirectories (Movies, TV, Music) can be added as separate libraries."
+                }
+            ]
+        },
+        {
+            "id": "navidrome",
+            "name": "Navidrome",
+            "tagline": "Modern self-hosted music server compatible with Subsonic clients",
+            "description": "Navidrome is a modern, lightweight music server and streamer. It's compatible with all Subsonic API clients (DSub, Symfonium, Ultrasonic, and more), so you can listen to your music library on any device.\n\nPoint it at your music library path. The web UI includes a built-in player; external apps connect via the Subsonic API on the same port.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/navidrome.png",
+            "category": "Media",
+            "tags": ["music", "streaming", "audio", "subsonic", "media"],
+            "compose": "services:\n  navidrome:\n    image: deluan/navidrome:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:4533\"\n    environment:\n      - ND_SCANSCHEDULE=1h\n      - ND_LOGLEVEL=info\n      - ND_SESSIONTIMEOUT=24h\n    volumes:\n      - navidrome_data:/data\n      - ${MUSIC_PATH}:/music:ro\n\nvolumes:\n  navidrome_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "4533",
+                    "description": "Host port to expose Navidrome on."
+                },
+                {
+                    "key": "MUSIC_PATH",
+                    "label": "Music Library Path",
+                    "default": "/mnt/music",
+                    "description": "Host directory containing your music files. Navidrome will scan and index all audio files here."
+                }
+            ]
+        },
+        {
+            "id": "wordpress",
+            "name": "WordPress",
+            "tagline": "The world's most popular CMS — powers 40% of the web",
+            "description": "WordPress is the most widely used content management system in the world, powering everything from personal blogs to enterprise websites. This setup includes WordPress with a MySQL backend.\n\nAfter installing, complete the WordPress installation wizard in your browser to create your admin account and configure your site.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/wordpress.png",
+            "category": "CMS",
+            "tags": ["cms", "blog", "website", "php", "wordpress"],
+            "compose": "services:\n  wordpress:\n    image: wordpress:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:80\"\n    environment:\n      - WORDPRESS_DB_HOST=db\n      - WORDPRESS_DB_NAME=wordpress\n      - WORDPRESS_DB_USER=wordpress\n      - WORDPRESS_DB_PASSWORD=${DB_PASSWORD}\n    volumes:\n      - wordpress_data:/var/www/html\n    depends_on:\n      - db\n\n  db:\n    image: mysql:8\n    restart: unless-stopped\n    environment:\n      - MYSQL_DATABASE=wordpress\n      - MYSQL_USER=wordpress\n      - MYSQL_PASSWORD=${DB_PASSWORD}\n      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}\n    volumes:\n      - wordpress_db:/var/lib/mysql\n\nvolumes:\n  wordpress_data:\n  wordpress_db:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8080",
+                    "description": "Host port to expose WordPress on."
+                },
+                {
+                    "key": "DB_PASSWORD",
+                    "label": "Database Password",
+                    "default": "",
+                    "description": "Password for the WordPress database user. Use a strong random string."
+                },
+                {
+                    "key": "DB_ROOT_PASSWORD",
+                    "label": "Database Root Password",
+                    "default": "",
+                    "description": "Root password for the internal MySQL instance."
+                }
+            ]
+        },
+        {
+            "id": "ghost",
+            "name": "Ghost",
+            "tagline": "Modern open-source publishing platform for blogs and newsletters",
+            "description": "Ghost is a powerful open-source publishing platform built for professional bloggers, independent creators, and media companies. Supports posts, pages, newsletters, memberships, and subscriptions.\n\nAfter installing, visit /ghost to complete setup and create your admin account. Set the URL to the public address where Ghost will be accessible.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/ghost.png",
+            "category": "CMS",
+            "tags": ["cms", "blog", "newsletter", "publishing"],
+            "compose": "services:\n  ghost:\n    image: ghost:5-alpine\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:2368\"\n    environment:\n      - url=${SITE_URL}\n      - database__client=mysql\n      - database__connection__host=db\n      - database__connection__user=ghost\n      - database__connection__password=${DB_PASSWORD}\n      - database__connection__database=ghost\n    volumes:\n      - ghost_data:/var/lib/ghost/content\n    depends_on:\n      - db\n\n  db:\n    image: mysql:8\n    restart: unless-stopped\n    environment:\n      - MYSQL_DATABASE=ghost\n      - MYSQL_USER=ghost\n      - MYSQL_PASSWORD=${DB_PASSWORD}\n      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}\n    volumes:\n      - ghost_db:/var/lib/mysql\n\nvolumes:\n  ghost_data:\n  ghost_db:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "2368",
+                    "description": "Host port to expose Ghost on."
+                },
+                {
+                    "key": "SITE_URL",
+                    "label": "Site URL",
+                    "default": "http://localhost:2368",
+                    "description": "Public URL of your Ghost site. Used for links in emails and the admin panel. Update if behind a reverse proxy."
+                },
+                {
+                    "key": "DB_PASSWORD",
+                    "label": "Database Password",
+                    "default": "",
+                    "description": "Password for the Ghost database user."
+                },
+                {
+                    "key": "DB_ROOT_PASSWORD",
+                    "label": "Database Root Password",
+                    "default": "",
+                    "description": "Root password for the internal MySQL instance."
+                }
+            ]
+        },
+        {
+            "id": "vaultwarden",
+            "name": "Vaultwarden",
+            "tagline": "Unofficial Bitwarden-compatible server — self-hosted password manager",
+            "description": "Vaultwarden is an unofficial, lightweight Bitwarden-compatible server written in Rust. It's fully compatible with all official Bitwarden clients (browser extensions, mobile apps, desktop app) and uses a fraction of the resources of the official server.\n\nAfter installing, register your account via the web vault or any Bitwarden client by pointing it at your Vaultwarden URL. Disable new registrations after creating your account (or use the admin token to manage users).",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/vaultwarden.png",
+            "category": "Security",
+            "tags": ["password-manager", "security", "bitwarden", "self-hosted"],
+            "compose": "services:\n  vaultwarden:\n    image: vaultwarden/server:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:80\"\n    environment:\n      - DOMAIN=${DOMAIN}\n      - ADMIN_TOKEN=${ADMIN_TOKEN}\n      - SIGNUPS_ALLOWED=${SIGNUPS_ALLOWED}\n    volumes:\n      - vaultwarden_data:/data\n\nvolumes:\n  vaultwarden_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8080",
+                    "description": "Host port to expose Vaultwarden on."
+                },
+                {
+                    "key": "DOMAIN",
+                    "label": "Domain",
+                    "default": "http://localhost:8080",
+                    "description": "Full public URL of your Vaultwarden instance. Required for WebAuthn and email links to work correctly."
+                },
+                {
+                    "key": "ADMIN_TOKEN",
+                    "label": "Admin Token",
+                    "default": "",
+                    "description": "Secret token to access the /admin panel. Generate with: openssl rand -base64 48. Leave blank to disable the admin panel."
+                },
+                {
+                    "key": "SIGNUPS_ALLOWED",
+                    "label": "Allow Signups",
+                    "default": "true",
+                    "description": "Set to 'false' to disable new user registration after you've created your account."
+                }
+            ]
+        },
+        {
+            "id": "mattermost",
+            "name": "Mattermost",
+            "tagline": "Open-source team messaging — a self-hosted Slack alternative",
+            "description": "Mattermost is an open-source, self-hosted messaging platform for team communication. Channels, direct messages, file sharing, threaded replies, and integrations — all without sending your data to a third party.\n\nAfter installing, complete the setup wizard to create the first admin account. The bundled PostgreSQL handles data storage.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/mattermost.png",
+            "category": "Communication",
+            "tags": ["messaging", "team", "chat", "slack-alternative", "collaboration"],
+            "compose": "services:\n  mattermost:\n    image: mattermost/mattermost-team-edition:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:8065\"\n    environment:\n      - MM_SQLSETTINGS_DRIVERNAME=postgres\n      - MM_SQLSETTINGS_DATASOURCE=postgres://mattermost:${DB_PASSWORD}@db:5432/mattermost?sslmode=disable\n      - MM_SERVICESETTINGS_SITEURL=${SITE_URL}\n    volumes:\n      - mattermost_data:/mattermost/data\n      - mattermost_logs:/mattermost/logs\n      - mattermost_config:/mattermost/config\n    depends_on:\n      - db\n\n  db:\n    image: postgres:15-alpine\n    restart: unless-stopped\n    environment:\n      - POSTGRES_DB=mattermost\n      - POSTGRES_USER=mattermost\n      - POSTGRES_PASSWORD=${DB_PASSWORD}\n    volumes:\n      - mattermost_db:/var/lib/postgresql/data\n\nvolumes:\n  mattermost_data:\n  mattermost_logs:\n  mattermost_config:\n  mattermost_db:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8065",
+                    "description": "Host port to expose Mattermost on."
+                },
+                {
+                    "key": "SITE_URL",
+                    "label": "Site URL",
+                    "default": "http://localhost:8065",
+                    "description": "Public-facing URL of your Mattermost instance. Update to your domain if behind a reverse proxy."
+                },
+                {
+                    "key": "DB_PASSWORD",
+                    "label": "Database Password",
+                    "default": "",
+                    "description": "Password for the internal PostgreSQL database. Use a strong random string."
+                }
+            ]
+        },
+        {
+            "id": "ntfy",
+            "name": "ntfy",
+            "tagline": "Simple HTTP-based pub/sub notification service",
+            "description": "ntfy is a simple pub/sub notification service that lets you send push notifications to your phone or desktop via scripts, curl, or any HTTP client — no account or API key needed.\n\nSubscribe to a topic in the ntfy app (Android/iOS) or web UI, then send notifications with a simple HTTP POST to your server. Enable auth below to restrict who can publish or subscribe.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/ntfy.png",
+            "category": "Communication",
+            "tags": ["notifications", "push", "alerts", "pubsub", "messaging"],
+            "compose": "services:\n  ntfy:\n    image: binwiederhier/ntfy:latest\n    restart: unless-stopped\n    command: serve\n    ports:\n      - \"${PORT}:80\"\n    environment:\n      - NTFY_BASE_URL=${BASE_URL}\n      - NTFY_AUTH_DEFAULT_ACCESS=${DEFAULT_ACCESS}\n    volumes:\n      - ntfy_data:/var/lib/ntfy\n      - ntfy_cache:/var/cache/ntfy\n\nvolumes:\n  ntfy_data:\n  ntfy_cache:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8080",
+                    "description": "Host port to expose ntfy on."
+                },
+                {
+                    "key": "BASE_URL",
+                    "label": "Base URL",
+                    "default": "http://localhost:8080",
+                    "description": "Public URL of your ntfy server. Used in notification payloads and the web UI."
+                },
+                {
+                    "key": "DEFAULT_ACCESS",
+                    "label": "Default Access",
+                    "default": "read-write",
+                    "description": "Default access level for unauthenticated users: read-write, read-only, write-only, or deny-all."
+                }
+            ]
+        },
+        {
+            "id": "memos",
+            "name": "Memos",
+            "tagline": "Lightweight self-hosted note-taking app with markdown and tags",
+            "description": "Memos is an open-source, privacy-focused note-taking application. Capture thoughts, ideas, and snippets in plain text or Markdown, tag them, and search across all your notes — with a Twitter-like timeline UI.\n\nAll notes are stored locally in a SQLite database. On first launch, create your admin account.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/memos.png",
+            "category": "Productivity",
+            "tags": ["notes", "markdown", "productivity", "journaling", "self-hosted"],
+            "compose": "services:\n  memos:\n    image: neosmemo/memos:stable\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:5230\"\n    volumes:\n      - memos_data:/var/opt/memos\n\nvolumes:\n  memos_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "5230",
+                    "description": "Host port to expose Memos on."
+                }
+            ]
+        },
+        {
+            "id": "stirling-pdf",
+            "name": "Stirling PDF",
+            "tagline": "Self-hosted PDF manipulation tool with 50+ operations",
+            "description": "Stirling PDF is a powerful, locally hosted web app for all your PDF needs. Merge, split, compress, convert, rotate, sign, watermark, and more — all processed on your server, never uploaded to third-party services.\n\nNo account needed. Just open the web UI and start working with your PDFs.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/stirling-pdf.png",
+            "category": "Utilities",
+            "tags": ["pdf", "utilities", "documents", "converter", "tools"],
+            "compose": "services:\n  stirling-pdf:\n    image: stirlingtools/stirling-pdf:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:8080\"\n    volumes:\n      - stirling_pdf_data:/usr/share/tesseract-ocr/5/tessdata\n    environment:\n      - DOCKER_ENABLE_SECURITY=false\n\nvolumes:\n  stirling_pdf_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8080",
+                    "description": "Host port to expose Stirling PDF on."
+                }
+            ]
+        },
+        {
+            "id": "it-tools",
+            "name": "IT Tools",
+            "tagline": "Collection of handy online tools for developers",
+            "description": "IT Tools is a beautifully designed collection of developer utilities — converters, encoders, generators, formatters, and more — all running locally in your browser. No data leaves your server.\n\nIncludes tools for JWT decoding, UUID generation, hash computation, base64 encoding, color conversion, cron expression parsing, regex testing, text diffing, and dozens more.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/it-tools.png",
+            "category": "Utilities",
+            "tags": ["developer", "tools", "utilities", "converters", "encoders"],
+            "compose": "services:\n  it-tools:\n    image: corentinth/it-tools:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:80\"\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8080",
+                    "description": "Host port to expose IT Tools on."
+                }
+            ],
+            "links": [
+                { "label": "GitHub", "url": "https://github.com/CorentinTh/it-tools" },
+                { "label": "Demo", "url": "https://it-tools.tech" }
+            ]
+        },
+        {
             "id": "umami",
             "name": "Umami",
             "tagline": "Privacy-first, self-hosted web analytics",
             "description": "Umami is a simple, fast, privacy-focused alternative to Google Analytics. No cookies, no personal data, GDPR compliant by design. Tracks page views, visitors, referrers, devices, and custom events.\n\nAfter installing, open the web UI and log in with the default credentials (admin / umami) — change the password immediately. Then create a website to get your Website ID and tracking script.",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/umami.png",
             "category": "Analytics",
-            "tags": [
-                "analytics",
-                "privacy",
-                "tracking",
-                "dashboard"
-            ],
+            "tags": ["analytics", "privacy", "tracking", "dashboard"],
             "compose": "services:\n  umami:\n    image: ghcr.io/umami-software/umami:postgresql-latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:3000\"\n    environment:\n      - DATABASE_URL=postgresql://umami:${DB_PASSWORD}@db:5432/umami\n      - DATABASE_TYPE=postgresql\n      - APP_SECRET=${APP_SECRET}\n    depends_on:\n      db:\n        condition: service_healthy\n\n  db:\n    image: postgres:15-alpine\n    restart: unless-stopped\n    environment:\n      - POSTGRES_DB=umami\n      - POSTGRES_USER=umami\n      - POSTGRES_PASSWORD=${DB_PASSWORD}\n    volumes:\n      - umami_db:/var/lib/postgresql/data\n    healthcheck:\n      test: [\"CMD-SHELL\", \"pg_isready -U umami\"]\n      interval: 5s\n      timeout: 5s\n      retries: 5\n\nvolumes:\n  umami_db:\n",
             "env": [
                 {
@@ -184,19 +1031,49 @@
             ]
         },
         {
+            "id": "open-webui",
+            "name": "Open WebUI",
+            "tagline": "Self-hosted AI chat interface for Ollama and OpenAI-compatible APIs",
+            "description": "Open WebUI is a feature-rich, self-hosted web interface for interacting with large language models. Works out of the box with Ollama and supports any OpenAI-compatible API.\n\nFeatures include multi-model chat, RAG document Q&A, image generation, voice input, user management, and full conversation history — all in a polished ChatGPT-style UI.\n\nTo connect a local Ollama instance set the Ollama URL below. To use OpenAI or another provider, leave Ollama URL blank and provide your API key.",
+            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/open-webui.png",
+            "category": "AI",
+            "tags": ["ai", "chat", "ollama", "llm", "interface", "openai"],
+            "compose": "services:\n  open-webui:\n    image: ghcr.io/open-webui/open-webui:main\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:8080\"\n    environment:\n      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}\n      - OPENAI_API_KEY=${OPENAI_API_KEY}\n      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}\n    volumes:\n      - open_webui_data:/app/backend/data\n\nvolumes:\n  open_webui_data:\n",
+            "env": [
+                {
+                    "key": "PORT",
+                    "label": "Port",
+                    "default": "8080",
+                    "description": "Host port to expose the Open WebUI on."
+                },
+                {
+                    "key": "OLLAMA_BASE_URL",
+                    "label": "Ollama URL",
+                    "default": "http://host.docker.internal:11434",
+                    "description": "URL of your Ollama instance. Use http://host.docker.internal:11434 to reach Ollama running on the host machine. Leave blank if using an OpenAI-compatible API only."
+                },
+                {
+                    "key": "OPENAI_API_KEY",
+                    "label": "OpenAI API Key",
+                    "default": "",
+                    "description": "Optional. API key for OpenAI or any OpenAI-compatible provider. Leave blank if using Ollama only."
+                },
+                {
+                    "key": "WEBUI_SECRET_KEY",
+                    "label": "Secret Key",
+                    "default": "",
+                    "description": "Secret key used to sign session tokens. Use a long random string — required for production use."
+                }
+            ]
+        },
+        {
             "id": "qwenpaw",
             "name": "QwenPaw",
             "tagline": "Self-hosted personal AI assistant with multi-agent, skills, and memory",
             "description": "QwenPaw is a self-hosted personal AI assistant built on Qwen models. Run it on your own server for full data control — memory, skills, and configuration never leave your machine.\n\nFeatures multi-agent collaboration, extensible skills (scheduling, document processing, news digests), integrations with Telegram, Discord, WeChat, DingTalk, and Feishu, and persistent memory that evolves with use.\n\nAfter installing, open the web console and configure your model provider API key in Settings → Model Provider. Enable authentication (recommended) via the environment variables below.",
             "icon": "https://github.com/agentscope-ai.png",
             "category": "AI",
-            "tags": [
-                "ai",
-                "assistant",
-                "agent",
-                "llm",
-                "qwen"
-            ],
+            "tags": ["ai", "assistant", "agent", "llm", "qwen"],
             "compose": "services:\n  qwenpaw:\n    image: agentscope/qwenpaw:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:8088\"\n    environment:\n      - QWENPAW_AUTH_ENABLED=${AUTH_ENABLED}\n      - QWENPAW_AUTH_USERNAME=${AUTH_USERNAME}\n      - QWENPAW_AUTH_PASSWORD=${AUTH_PASSWORD}\n      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}\n    volumes:\n      - qwenpaw_data:/app/working\n      - qwenpaw_secrets:/app/working.secret\n      - qwenpaw_backups:/app/working.backups\n\nvolumes:\n  qwenpaw_data:\n  qwenpaw_secrets:\n  qwenpaw_backups:\n",
             "env": [
                 {
@@ -238,14 +1115,7 @@
             "description": "9Router is an open-source AI API gateway that intelligently routes requests across 40+ providers (Claude, OpenAI, Gemini, Cursor, and more) and 100+ models. Features automatic token compression to cut costs, multi-account round-robin load balancing, real-time quota tracking, and seamless format translation between different AI platforms — all behind a single OpenAI-compatible endpoint.\n\nAfter installing, open the web UI and log in with the initial password. Then configure your provider API keys in the dashboard and point your apps at 9Router's endpoint.",
             "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJz48cmVjdCB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgcng9JzIwJyBmaWxsPScjRTY4QTZFJy8+PHRleHQgeD0nNTAnIHk9JzcwJyBmb250LXNpemU9JzYwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSd3aGl0ZScgZm9udC13ZWlnaHQ9J2JvbGQnPjk8L3RleHQ+PC9zdmc+",
             "category": "AI",
-            "tags": [
-                "ai",
-                "router",
-                "llm",
-                "proxy",
-                "openai",
-                "gateway"
-            ],
+            "tags": ["ai", "router", "llm", "proxy", "openai", "gateway"],
             "compose": "services:\n  9router:\n    image: decolua/9router:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:20128\"\n    environment:\n      - DATA_DIR=/app/data\n      - JWT_SECRET=${JWT_SECRET}\n      - INITIAL_PASSWORD=${INITIAL_PASSWORD}\n    volumes:\n      - 9router_data:/app/data\n\nvolumes:\n  9router_data:\n",
             "env": [
                 {
@@ -275,15 +1145,7 @@
             "description": "Hermes Agent is a self-hosted personal AI assistant by Nous Research. It features a closed learning loop — it creates skills from experience, builds persistent memory across sessions, and runs scheduled automations. Connect any model (OpenAI, OpenRouter, NVIDIA NIM, and more) and talk to it via Telegram, Discord, Slack, WhatsApp, Signal, or CLI.\n\nAfter installing, open the dashboard and add your model provider API key in Settings. The gateway uses host networking for full connectivity; the dashboard is exposed on the port you choose below.",
             "icon": "https://hermes-agent.nousresearch.com/docs/img/logo.png",
             "category": "AI",
-            "tags": [
-                "ai",
-                "agent",
-                "llm",
-                "assistant",
-                "memory",
-                "telegram",
-                "discord"
-            ],
+            "tags": ["ai", "agent", "llm", "assistant", "memory", "telegram", "discord"],
             "compose": "services:\n  gateway:\n    image: nousresearch/hermes-agent:latest\n    container_name: hermes-gateway\n    restart: unless-stopped\n    network_mode: host\n    volumes:\n      - hermes_data:/opt/data\n    command: [\"gateway\", \"run\"]\n\n  dashboard:\n    image: nousresearch/hermes-agent:latest\n    container_name: hermes-dashboard\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:9119\"\n    depends_on:\n      - gateway\n    volumes:\n      - hermes_data:/opt/data\n    command: [\"dashboard\", \"--host\", \"0.0.0.0\", \"--no-open\"]\n\nvolumes:\n  hermes_data:\n",
             "env": [
                 {
@@ -295,63 +1157,13 @@
             ]
         },
         {
-            "id": "open-webui",
-            "name": "Open WebUI",
-            "tagline": "Self-hosted AI chat interface for Ollama and OpenAI-compatible APIs",
-            "description": "Open WebUI is a feature-rich, self-hosted web interface for interacting with large language models. Works out of the box with Ollama and supports any OpenAI-compatible API.\n\nFeatures include multi-model chat, RAG document Q&A, image generation, voice input, user management, and full conversation history — all in a polished ChatGPT-style UI.\n\nTo connect a local Ollama instance set the Ollama URL below. To use OpenAI or another provider, leave Ollama URL blank and provide your API key.",
-            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/open-webui.png",
-            "category": "AI",
-            "tags": [
-                "ai",
-                "chat",
-                "ollama",
-                "llm",
-                "interface",
-                "openai"
-            ],
-            "compose": "services:\n  open-webui:\n    image: ghcr.io/open-webui/open-webui:main\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:8080\"\n    environment:\n      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}\n      - OPENAI_API_KEY=${OPENAI_API_KEY}\n      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}\n    volumes:\n      - open_webui_data:/app/backend/data\n\nvolumes:\n  open_webui_data:\n",
-            "env": [
-                {
-                    "key": "PORT",
-                    "label": "Port",
-                    "default": "8080",
-                    "description": "Host port to expose the Open WebUI on."
-                },
-                {
-                    "key": "OLLAMA_BASE_URL",
-                    "label": "Ollama URL",
-                    "default": "http://host.docker.internal:11434",
-                    "description": "URL of your Ollama instance. Use http://host.docker.internal:11434 to reach Ollama running on the host machine. Leave blank if using an OpenAI-compatible API only."
-                },
-                {
-                    "key": "OPENAI_API_KEY",
-                    "label": "OpenAI API Key",
-                    "default": "",
-                    "description": "Optional. API key for OpenAI or any OpenAI-compatible provider. Leave blank if using Ollama only."
-                },
-                {
-                    "key": "WEBUI_SECRET_KEY",
-                    "label": "Secret Key",
-                    "default": "",
-                    "description": "Secret key used to sign session tokens. Use a long random string — required for production use."
-                }
-            ]
-        },
-        {
             "id": "omniroute",
             "name": "OmniRoute",
             "tagline": "Unified AI gateway for 160+ providers with smart routing and token compression",
             "description": "OmniRoute is an open-source AI API gateway that routes requests across 160+ providers (OpenAI, Claude, Gemini, Deepseek, Groq, and more) through a single OpenAI-compatible endpoint. Features automatic prompt compression for 15–95% token reduction, multi-account round-robin load balancing, auto-fallback on provider errors, and real-time usage tracking — all managed from a built-in dashboard.\n\nAfter installing, open the web UI, log in with your initial password, and add your provider API keys in Settings. Point your apps at OmniRoute's endpoint and select your routing strategy.",
             "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/basic-memory.png",
             "category": "AI",
-            "tags": [
-                "ai",
-                "router",
-                "llm",
-                "proxy",
-                "openai",
-                "gateway"
-            ],
+            "tags": ["ai", "router", "llm", "proxy", "openai", "gateway"],
             "compose": "services:\n  omniroute:\n    image: diegosouzapw/omniroute:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:20128\"\n    environment:\n      - JWT_SECRET=${JWT_SECRET}\n      - API_KEY_SECRET=${API_KEY_SECRET}\n      - INITIAL_PASSWORD=${INITIAL_PASSWORD}\n      - NEXT_PUBLIC_BASE_URL=${BASE_URL}\n    volumes:\n      - omniroute_data:/app/data\n\nvolumes:\n  omniroute_data:\n",
             "env": [
                 {
@@ -383,97 +1195,6 @@
                     "label": "Base URL",
                     "default": "http://localhost:20128",
                     "description": "Public-facing URL where OmniRoute is accessible. Used for dashboard links and CORS. Update if behind a reverse proxy."
-                }
-            ]
-        },
-        {
-            "id": "uptime-kuma",
-            "name": "Uptime Kuma",
-            "tagline": "Self-hosted uptime monitoring tool with a fancy UI",
-            "description": "Uptime Kuma is an easy-to-use self-hosted monitoring tool for tracking uptime of websites, TCP ports, DNS, and more with notifications support.",
-            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/uptime-kuma.png",
-            "category": "Monitoring",
-            "tags": [
-                "monitoring",
-                "uptime",
-                "alerting"
-            ],
-            "compose": "services:\n  uptime-kuma:\n    image: louislam/uptime-kuma:2\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:3001\"\n    volumes:\n      - uptime_kuma_data:/app/data\n\nvolumes:\n  uptime_kuma_data:\n",
-            "env": [
-                {
-                    "key": "PORT",
-                    "label": "Port",
-                    "default": "3001",
-                    "description": "Host port to expose the Uptime Kuma web UI on."
-                }
-            ]
-        },
-        {
-            "id": "it-tools",
-            "name": "IT Tools",
-            "tagline": "Collection of handy online tools for developers",
-            "description": "IT Tools is a beautifully designed collection of developer utilities — converters, encoders, generators, formatters, and more — all running locally in your browser. No data leaves your server.\n\nIncludes tools for JWT decoding, UUID generation, hash computation, base64 encoding, color conversion, cron expression parsing, regex testing, text diffing, and dozens more.",
-            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/it-tools.png",
-            "category": "Utilities",
-            "tags": [
-                "developer",
-                "tools",
-                "utilities",
-                "converters",
-                "encoders"
-            ],
-            "compose": "services:\n  it-tools:\n    image: corentinth/it-tools:latest\n    restart: unless-stopped\n    ports:\n      - \"${PORT}:80\"\n",
-            "env": [
-                {
-                    "key": "PORT",
-                    "label": "Port",
-                    "default": "8765",
-                    "description": "Host port to expose IT Tools on."
-                }
-            ],
-            "links": [
-                {
-                    "label": "GitHub",
-                    "url": "https://github.com/CorentinTh/it-tools"
-                },
-                {
-                    "label": "Demo",
-                    "url": "https://it-tools.tech"
-                }
-            ]
-        },
-        {
-            "id": "nginx-proxy-manager",
-            "name": "Nginx Proxy Manager",
-            "tagline": "Reverse proxy with SSL termination and a beautiful web UI",
-            "description": "Nginx Proxy Manager makes it easy to forward traffic to your services with free SSL certificates from Let's Encrypt — no Nginx config files needed. Manage proxy hosts, redirections, 404 hosts, and stream hosts from a clean web dashboard.\n\nDefault admin credentials on first run:\n  Email:    admin@example.com\n  Password: changeme\n\nChange them immediately after first login. Ports 80 and 443 must be available on the host for SSL certificate renewal and HTTPS termination to work.",
-            "icon": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/nginx-proxy-manager.png",
-            "category": "Networking",
-            "tags": [
-                "nginx",
-                "proxy",
-                "reverse-proxy",
-                "ssl",
-                "letsencrypt",
-                "networking"
-            ],
-            "compose": "services:\n  nginx-proxy-manager:\n    image: jc21/nginx-proxy-manager:latest\n    restart: unless-stopped\n    ports:\n      - \"80:80\"\n      - \"443:443\"\n      - \"${ADMIN_PORT}:81\"\n    volumes:\n      - npm_data:/data\n      - npm_letsencrypt:/etc/letsencrypt\n\nvolumes:\n  npm_data:\n  npm_letsencrypt:\n",
-            "env": [
-                {
-                    "key": "ADMIN_PORT",
-                    "label": "Admin UI Port",
-                    "default": "81",
-                    "description": "Host port for the Nginx Proxy Manager web dashboard."
-                }
-            ],
-            "links": [
-                {
-                    "label": "GitHub",
-                    "url": "https://github.com/NginxProxyManager/nginx-proxy-manager"
-                },
-                {
-                    "label": "Documentation",
-                    "url": "https://nginxproxymanager.com/guide/"
                 }
             ]
         }
